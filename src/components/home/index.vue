@@ -1,6 +1,7 @@
 <template>
   <div class="home">
     <div class="titleQ">租户管理</div>
+    <!-- 头部结构 -->
     <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="租户ID">
@@ -11,22 +12,59 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="doFilter">搜索</el-button>
-
-          <el-button>+ 添加租户</el-button>
+          <el-button @click="addTenant">+ 添加租户</el-button>
+          <!--  -->
+          <el-dialog title="添加租户" :visible.sync="dialogFormVisible">
+            <el-form :model="form">
+              <el-form-item label="租户名称" :label-width="formLabelWidth">
+                <el-input v-model="form.name" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="授权能力" :label-width="formLabelWidth">
+                <el-select v-model="form.region" multiple placeholder="请选择授权能力">
+                  <el-option label="语音能力" value="shanghai"></el-option>
+                  <el-option label="视频流" value="beijing"></el-option>
+                  <el-option label="分析能力" value="beijing111"></el-option>
+                </el-select>
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></el-option>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button type="primary" @click="handleSubmit ">确 定</el-button>
+            </div>
+          </el-dialog>
+          <!--  -->
         </el-form-item>
       </el-form>
     </div>
+    <!-- 表格布局结构   -->
     <el-table
       style="width: 100%;"
       class="tabP"
       :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+      fit
       border
       stripe
-      fit
+      tooltip-effect="dark"
       empty-text="暂无数据"
     >
-      <template v-for="(item, index) in tableLabel">
-        <el-table-column :key="index" :prop="item.prop" :label="item.label" width></el-table-column>
+      <template>
+        <!-- v-for="(item, index) in tableLabel" -->
+        <el-table-column show-overflow-tooltip prop="tenantID" label="租户ID"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="tenantName" label="住户名称"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="code" label="授权码"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="abilityIDs" label="授权能力识别码"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="abilityNames" label="授权能力">
+          <!-- <template slot-scope="scope">
+            <div v-for="(item,index) in scope.row.abilityNames.split(',')" :key="index">{{item}}</div>
+          </template>-->
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="createTime" label="创建时间"></el-table-column>
       </template>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -42,20 +80,19 @@
             @close="closeDialogVisible"
           >
             <el-form :model="editForm" :rules="rules" ref="editForm">
-              <el-form-item label="类别名称" :label-width="formLabelWidth">
-                <el-input v-model="editForm.name" autocomplete="off"></el-input>
+              <el-form-item label="租户ID" :label-width="formLabelWidth">
+                <el-input readonly v-model="editForm.tenantID" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="类称" :label-width="formLabelWidth">
-                <el-input v-model="editForm.name" autocomplete="off"></el-input>
+              <el-form-item label="租户名称" :label-width="formLabelWidth">
+                <el-input v-model="editForm.tenantName" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="称" :label-width="formLabelWidth">
-                <el-input v-model="editForm.name" autocomplete="off"></el-input>
+              <el-form-item label="授权码" :label-width="formLabelWidth">
+                <el-input v-model="editForm.code" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="别称" :label-width="formLabelWidth">
-                <el-input v-model="editForm.name" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="排序" :label-width="formLabelWidth">
-                <el-input v-model.number="editForm.sort"></el-input>
+              <el-form-item label="授权能力" :label-width="formLabelWidth">
+                <el-select v-model="form.region" placeholder="请选择活动区域">
+                  <el-option v-for="(o,j) in editForm.arrayAbility" :key="j" :label="o.name" :value="o.vlaue"></el-option>
+                </el-select>
               </el-form-item>
             </el-form>
 
@@ -64,6 +101,10 @@
               <el-button type="primary" @click="saveEditForm('editForm')">确 定</el-button>
             </div>
           </el-dialog>
+<<<<<<< HEAD
+          <el-button type="text" @click="edit">配置</el-button>
+          <el-button type="text" @click="open(scope.row,scope.$index)">删除</el-button>
+=======
           <el-button type="text" @click="edit" style="margin-left:10px;">
             <i class="icon iconfont icon-icon-test" style="font-size:18px; font-weight:bold;"></i>
           </el-button>
@@ -73,6 +114,7 @@
           <el-button type="text" @click="open(scope.$index)">
             <i class="icon iconfont icon-shanchu" style="color:orange; font-size:18px; font-weight:bold;"></i>
           </el-button>
+>>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           <el-dialog
             :title="title1"
             :visible.sync="dialogEditgsVisible1"
@@ -83,10 +125,7 @@
             <span class="rmdata">确定要删除这条数据吗？</span>
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogEditgsVisible1 = false">取 消</el-button>
-              <el-button
-                type="primary"
-                @click.native.prevent="deleteRow1(scope.$index, tableData)"
-              >确 定</el-button>
+              <el-button type="primary" @click.native.prevent="deleteRow1(scope.row, tableData)">确 定</el-button>
             </div>
           </el-dialog>
         </template>
@@ -110,6 +149,20 @@
 export default {
   data() {
     return {
+      dialogTableVisible: false,
+      dialogFormVisible: false,
+      form: {
+        name: "",
+        region: "",
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: ""
+      },
+      formLabelWidth: "120px",
+      //----------------------------------------
       currentPage: 1, //初始页
       pagesize: 10, //每页的数据
       userList: [],
@@ -125,7 +178,8 @@ export default {
       },
       editForm: {
         name: "",
-        sort: 99
+        sort: 99,
+        arrayAbility:''
       },
       title: "",
       title1: "",
@@ -141,14 +195,29 @@ export default {
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
       //搜索功能需要的data
-      tableDataName: "",
-      tableDataValue: "",
+      tableDataName: "", //租户ID
+      tableDataValue: "", //授权码
       // tableDataEnd: [],
       totalItems: 0,
       filterTableData: [],
       flag: false,
       //列表数据
       tableData: [
+<<<<<<< HEAD
+        // {
+        //   abilityIDs: "",
+        //   abilityNames: "",
+        //   code: "5PF8EWHn9hYd6OxBsV9Gsg==",
+        //   createTime: "2019-10-15 16:21:42",
+        //   tenantID: 8,
+        //   tenantName: "中国联通"
+        // },
+        // {
+        //   id: "2016-05-02",
+        //   name: "王8虎",
+        //   address: "上海市普陀区金沙江路 1515 弄"
+        // }
+=======
         {
           abilityIDs: "1234",
           abilityNames: "5678",
@@ -213,6 +282,7 @@ export default {
           tenantID: 8,
           tenantName: "中国1联通"
         }
+>>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
       ],
       tableLabel: [
         { label: "租户ID", prop: "tenantID" },
@@ -222,10 +292,21 @@ export default {
         { label: "授权能力", prop: "abilityNames" },
         { label: "创建时间", prop: "createTime" }
       ]
+      // tableLabel: [
+      //   { label: "租户ID", prop: "id" },
+      //   { label: "租户名称", prop: "name" },
+      //   { label: "授权码", prop: "address" },
+      //   { label: "授权能力编号", prop: "address" },
+      //   { label: "授权能力", prop: "address" },
+      //   { label: "创建时间", prop: "address" }
+      // ]
     };
   },
-
   methods: {
+    handleSubmit() {
+      console.log('0000000000')
+      console.log(this.$data.form.name,this.$data.form.region,'=========')
+    },
     //点击删除是触发函数
     open(index) {
       this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
@@ -235,7 +316,9 @@ export default {
         center: true
       })
         .then(() => {
-          this.tableData.splice(index, 1);
+          console.log(index);
+          // this.tableData.splice(index, 1);
+
           this.$message({
             type: "success",
             message: "删除成功!"
@@ -258,22 +341,36 @@ export default {
     currentPage1() {
       console.log("currentPage1");
     },
-
+    addTenant() {
+      this.dialogTableVisible = true;
+      this.dialogFormVisible = true;
+    },
     doFilter() {
       if (this.tableDataName == "" || this.tableDataValue == "") {
         this.$message.warning("查询条件不能为空！");
         return;
-      } // this.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
+      }
+      // this.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
       this.filtertableData = []; //过滤后的数据
       this.tableData.forEach((value, index) => {
+<<<<<<< HEAD
+        console.log(value, "value");
+        if (value.tenantID && value.code) {
+=======
         // console.log(value,'value')
         if (value.tenantID && value.tenantName) {
+>>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           console.log(this.tableDataName, this.tableDataValue, "----9");
+          console.log(typeof value.tenantID.toString(), "value.tenantID"); //number
           if (
+<<<<<<< HEAD
+            value.tenantID.toString().indexOf(this.tableDataName) != -1 &&
+            value.code.indexOf(this.tableDataValue) != -1
+=======
             value.tenantID.indexOf(this.tableDataName) != -1 &&
             value.tenantName.indexOf(this.tableDataValue) != -1
+>>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           ) {
-            console.log(111, "111");
             this.filtertableData.push(value);
             console.log(this.filtertableData, "this.filtertableData");
           }
@@ -319,12 +416,23 @@ export default {
      *点击编辑删除按钮，弹出编辑删除模态框
      * @param
      */
-    editgsForm(val) {
+    editgsForm(index, row) {
       this.dialogEditgsVisible = true;
       (this.title = "编辑"), (this.title1 = "删除");
-      this.editForm.id = val.id;
-      this.editForm.name = val.name;
-      this.editForm.sort = val.sort;
+      this.editForm = row;
+      var arr1=[],arr2=[];
+      arr1=row.abilityIDs.split(',');
+      arr2=row.abilityNames.split(',');
+      var arr=[];
+      
+      arr1.forEach((obj,index)=>{
+        var o={};
+        o.value=obj;
+        o.name=arr2[index];
+        arr.push(o);
+      })
+      this.editForm.arrayAbility=arr;
+
     },
 
     saveEditForm(aaa) {
@@ -343,15 +451,19 @@ export default {
     getData() {}
   },
   mounted() {
+    this.handleSubmit();
+
     //
     //发送ajax请求获取数据
-    thia_.$axios
-      .post("/oms-basic/tenant!addTenant.json", {
-        tenantName: "110",
-        abilityIDs: "112"
+    this.$axios
+      .post("/oms-basic/tenant!selectTenantBy.json", {
+        // tenantName: "110",
+        // abilityIDs: "112"
       })
       .then(res => {
-        console.log(res, "2222222222");
+        // this.tableData = res.data.data;
+        this.tableData = [].concat(res.data.data);
+        // console.log(this.tableData, "this.tableData");
       });
   },
   created() {
@@ -359,7 +471,11 @@ export default {
   }
 };
 </script>
-
+<style>
+.el-tooltip__popper {
+  max-width: 200px !important;
+}
+</style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
 
