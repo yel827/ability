@@ -12,12 +12,26 @@
       </el-form>
     </div>
     <el-table
-      :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-      style="width: 100%;"
       class="tabP"
+      :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+      fit
+      border
+      stripe
+      tooltip-effect="dark"
+      empty-text="暂无数据"
     >
-      <template v-for="(item, index) in tableLabel">
-        <el-table-column :key="index" :prop="item.prop" :label="item.label" width></el-table-column>
+      <template>
+        <!-- v-for="(item, index) in tableLabel" -->
+        <el-table-column show-overflow-tooltip prop="tenantID" label="租户ID"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="tenantName" label="住户名称"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="code" label="授权码"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="abilityIDs" label="授权能力识别码"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="abilityNames" label="授权能力">
+          <!-- <template slot-scope="scope">
+            <div v-for="(item,index) in scope.row.abilityNames.split(',')" :key="index">{{item}}</div>
+          </template>-->
+        </el-table-column>
+        <el-table-column show-overflow-tooltip prop="createTime" label="创建时间"></el-table-column>
       </template>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -68,6 +82,7 @@ export default {
     return {
       currentPage: 1, //初始页
       pagesize: 10, //每页的数据
+      total:0,
       formInline: {
         user: "",
         name: "",
@@ -95,89 +110,15 @@ export default {
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
       tableData: [
-        {
-          id: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          id: "2016-05-04",
-          name: "王3虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王4虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王5虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王6虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王7虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王8虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王10虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
+        
       ],
       tableLabel: [
-        { label: "租户ID", prop: "id" },
-        { label: "租户名称", prop: "name" },
-        { label: "授权码", prop: "address" },
-        { label: "授权能力编号", prop: "address" },
-        { label: "授权能力", prop: "address" },
-        { label: "创建时间", prop: "address" }
+        { label: "租户ID", prop: "tenantID" },
+        { label: "租户名称", prop: "tenantName" },
+        { label: "授权码", prop: "code" },
+        { label: "授权能力编号", prop: "abilityIDs" },
+        { label: "授权能力", prop: "abilityNames" },
+        { label: "创建时间", prop: "createTime" }
       ]
     };
   },
@@ -228,21 +169,66 @@ export default {
       this.editForm.name = val.name;
       this.editForm.sort = val.sort;
     },
+     doFilter() {
+      
+      // if (this.tableDataName == "" && this.tableDataValue == "") {
+      //   this.$message.warning("查询条件不能为空！");
+      //   return;
+      // }
+      //this_.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
+      this.filtertableData = []; //过滤后的数据
+      var IDcode = {
+        tenantID:this.tableDataName,
+        code:this.tableDataValue
+      }
+      this.$axios.post("/oms-basic/tenant!selectTenantBy.json",this.$qs.stringify(IDcode))
+      .then(res=>{
+        console.log(res.data.data)
+        var subjectY = res.data.data
+        // if(subjectY.tenantID === this.tableDataName.value &&
+        //   subjectY.code == this.tableDataValue.value
+        // ){
+        //   this.filtertableData.push(subjectY);
+        // }
+        this.tableData=subjectY;
+        this.total=res.data.count;
 
-    saveEditForm(aaa) {
-      this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
-        if (valid) {
-          // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
-          //   alert('更新成功');
-          this.dialogEditgsVisible = false;
-          this.init();
-          console.log(valid);
-          // })
-        }
+        console.log(this.filtertableData,"12")
+        console.log(this.tableData,"ssss")
+      })
+      .catch(error=>{
+        console.log(error)
+      })
+      //页面数据改变重新统计数据数量和当前页
+      this.currentPage = 1;
+      this.totalItems = this.filtertableData.length;
+      //渲染表格,根据值
+      this.currentChangePage(this.filtertableData);
+      //页面初始化数据需要判断是否检索过
+      this.flag = true;
+    },
+  },
+   mounted() {
+    //调取能力值库 this.editForm.arrayAbility=res;
+
+    this.handleSubmit();
+
+    //
+    //发送ajax请求获取数据
+
+    this.$axios
+      .post("/oms-basic/tenant!selectTenantBy.json", {
+        // tenantName: "110",
+        // abilityIDs: "112"
+      })
+      .then(res => {
+        // this.tableData = res.data.data;
+        
+        this.tableData = [].concat(res.data.data);
+        this.total=res.data.count;
+        // console.log(this.tableData, "this.tableData");
       });
-    }
-  }
+  },
 };
 </script>
 
