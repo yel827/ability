@@ -97,15 +97,15 @@
                 <el-input v-model="editForm.tenantName" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="授权码" :label-width="formLabelWidth">
-                <el-input v-model="editForm.code" autocomplete="off"></el-input>
+                <el-input readonly v-model="editForm.code" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="授权能力" :label-width="formLabelWidth">
-                <el-select v-model="form.abilityId" placeholder="请选择活动区域">
+                <el-select v-model="form.abilityId" placeholder="请选择" collapse-tags multiple>
                   <el-option
                     v-for="(o,j) in editForm.arrayAbility"
                     :key="j"
-                    :label="o.name"
-                    :value="o.vlaue"
+                    :label="o.abilityName"
+                    :value="o.ID"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -177,7 +177,7 @@ export default {
       _index: "",
       form: {
         name: "",
-        abilityId: "",
+        abilityId: [],
         date1: "",
         date2: "",
         delivery: false,
@@ -203,7 +203,8 @@ export default {
       editForm: {
         name: "",
         sort: 99,
-        arrayAbility: ""
+        arrayAbility: [],
+        temArr:[]
       },
       title: "",
       title1: "",
@@ -389,7 +390,9 @@ export default {
      * @param
      */
     editgsForm(index, row) {
-      console.log(index,"index");
+      this.dialogEditgsVisible = true;
+      console.log(this.editForm.temArr);
+      row.temArr=this.editForm.temArr;
       console.log(row, "row");
       // abilityIDs: "111,116,115,114,122,113,112,119"
       // abilityNames: "1人脸检测（照片中包含若干人脸）,2人脸特征值缓存更新,3人脸比对（两组512位双精度人脸特征值）,4人脸比对（一张单一人脸图片，一组512位双精度人脸特征值,5人脸信息识别（单一人脸图片）,6人脸比对（两张单一人脸图片）,7人脸照片转换为特征值（照片中只含一个人脸）,8人脸信息识别（512位双精度人脸特征值）"
@@ -398,26 +401,26 @@ export default {
       // createTime: "2019-10-15 17:18:26"
       // tenantID: 10
       // tenantName: "电信"
-      this.dialogEditgsVisible = true;
+      
       (this.title = "编辑"), (this.title1 = "删除");
       this.editForm = row; // editForm 是???  row 是???
       var arr1 = [],
         arr2 = [];
       console.log(row.abilityIDs, "row.abilityIDs"); //111,116,115,114,122,113,112,119 row.abilityIDs
-      arr1 = row.abilityIDs.split(","); //arr1是什么, row.abilityIDs是什么???
+      //arr1 = row.abilityIDs.split(","); //arr1是什么, row.abilityIDs是什么???
       console.log(arr1, "arr1"); //["111", "116", "115", "114", "122", "113", "112", "119"]
       arr2 = row.abilityNames.split(",");
       console.log(arr2, "arr2"); //["人脸检测（照片中包含若干人脸）", "人脸特征值缓存更新", "人脸比对（两组512位双精度人脸特征值）", "人脸比对（一张单一人脸图片，一组512位双精度人脸特征值", "人脸信息识别（单一人脸图片）", "人脸比对（两张单一人脸图片）", "人脸照片转换为特征值（照片中只含一个人脸）", "人脸信息识别（512位双精度人脸特征值）"]
       var arr = [];
 
-      arr1.forEach((obj, index) => {
-        //obj 是arr1中的每一项
-        var o = {};
-        o.value = obj;
-        o.name = arr2[index];
-        arr.push(o);
-        console.log(o, "oooo");
-      });
+      // arr1.forEach((obj, index) => {
+      //   //obj 是arr1中的每一项
+      //   var o = {};
+      //   o.ID = obj;
+      //   o.abilityName = arr2[index];
+      //   arr.push(o);
+      //   console.log(o, "oooo");
+      // });
       console.log(arr, "arr");
       //  [{value: "111", name: "人脸检测（照片中包含若干人脸）"},
       //   {value: "116", name: "人脸特征值缓存更新"},
@@ -427,7 +430,9 @@ export default {
       //   {value: "113", name: "人脸比对（两张单一人脸图片）"},
       //   {value: "112", name: "人脸照片转换为特征值（照片中只含一个人脸）"},
       //   {value: "119", name: "人脸信息识别（512位双精度人脸特征值）"}]
-      this.editForm.arrayAbility = arr; //arr赋值给editForm.arrayAbility
+      this.form.abilityId = row.abilityIDs; //arr赋值给editForm.arrayAbility
+      this.editForm.arrayAbility=this.editForm.temArr;
+      console.log(this.editForm.temArr);
     },
    
     saveEditForm(aaa,bbb,name) {
@@ -435,10 +440,11 @@ export default {
       var param=new URLSearchParams();
       param.append("tenantID",this.editForm.tenantID);
       param.append("tenantName",this.editForm.tenantName);
-      param.append("abilityIDs",this.editForm.abilityIDs);
+      param.append("abilityIDs",this.form.abilityId.join(","));
+      console.log(this.form.abilityId);
       var params1={
-        tenantID:20,      
-        abilityIDs:this.form.abilityId
+        tenantID:this.editForm.tenantID,      
+        abilityIDs:this.form.abilityId.join(",")
       }
       // var header={
       //   headers:{
@@ -469,11 +475,20 @@ export default {
       //   }
       // });
     },
-    getData() {}
+    getData() {},
+    getAbilitys(){
+      let that=this;
+      that.$axios.post('/oms-basic/ability!selectAbilityList.json').then((res)=>{
+        that.editForm.temArr=res.data.data;
+        console.log(that.editForm.temArr);
+      }).catch(()=>{
+        console.log("error")
+      })
+    }
   },
   mounted() {
     //调取能力值库 this.editForm.arrayAbility=res;
-    
+    this.getAbilitys();
     this.handleSubmit();
 
     //
