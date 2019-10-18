@@ -259,9 +259,9 @@ export default {
       var that = this;
       that.dialogVisible = false;
       //调取添加接口
-      let header = {headers:{
-        "Content-Type":"application/x-www-form-urlencoded"
-      }}
+      // let header = {headers:{
+      //   "Content-Type":"application/x-www-form-urlencoded"
+      // }}
       //1.
       var params=new URLSearchParams();
       params.append("tenantName",that.productName)
@@ -269,11 +269,12 @@ export default {
       //2. that.$qs.stringify(params1)
       
       var params1={
-        "tenantName":that.productName,
-        "abilityIDs":that.value
+        // "tenantName":that.productName,
+        // "abilityIDs":that.value
+        "id":"8","name":"testup","wechatname":"testwechat","email":"4565"
       }
       that.$axios
-        .post("/oms-basic/tenant!addTenant.json", that.$qs.stringify(params1),header)
+        .post("/oms-basic/emergencyContact!save.json", that.$qs.stringify(params1))
         //成功
         .then(res => {
           //返回的数据
