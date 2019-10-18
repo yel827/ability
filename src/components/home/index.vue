@@ -67,10 +67,13 @@
         <el-table-column show-overflow-tooltip prop="createTime" label="创建时间"></el-table-column>
       </template>
       <el-table-column label="操作">
+        <!-- 操作column -->
         <template slot-scope="scope">
+          <!-- 编辑图标 -->
           <el-button type="text" @click="editgsForm(scope.$index, scope.row)">
             <i class="icon iconfont icon-bianji" style="font-size:18px; font-weight:bold;"></i>
           </el-button>
+          <!-- 编辑弹窗 dialog-->
           <el-dialog
             class="headers"
             :title="title"
@@ -90,31 +93,35 @@
                 <el-input v-model="editForm.code" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="授权能力" :label-width="formLabelWidth">
-                <el-select v-model="form.region" placeholder="请选择活动区域">
-                  <el-option v-for="(o,j) in editForm.arrayAbility" :key="j" :label="o.name" :value="o.vlaue"></el-option>
+                <el-select v-model="form.abilityId" placeholder="请选择活动区域">
+                  <el-option
+                    v-for="(o,j) in editForm.arrayAbility"
+                    :key="j"
+                    :label="o.name"
+                    :value="o.vlaue"
+                  ></el-option>
                 </el-select>
               </el-form-item>
             </el-form>
 
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogEditgsVisible = false">取 消</el-button>
-              <el-button type="primary" @click="saveEditForm('editForm')">确 定</el-button>
+              <el-button type="primary" @click="saveEditForm(editForm.arrayAbility,scope.row.tenantID,scope.row.tenantName)">确 定</el-button>
             </div>
           </el-dialog>
-<<<<<<< HEAD
-          <el-button type="text" @click="edit">配置</el-button>
-          <el-button type="text" @click="open(scope.row,scope.$index)">删除</el-button>
-=======
-          <el-button type="text" @click="edit" style="margin-left:10px;">
-            <i class="icon iconfont icon-icon-test" style="font-size:18px; font-weight:bold;"></i>
+          <!-- 设置 -->
+          <el-button type="text" @click="edit">
+            <i
+              class="icon iconfont icon-icon-test"
+              style="font-size:18px; font-weight:bold;margin-left:10px;"
+            ></i>
           </el-button>
-          <!--  -->
-          
-          <!--  -->
-          <el-button type="text" @click="open(scope.$index)">
-            <i class="icon iconfont icon-shanchu" style="color:orange; font-size:18px; font-weight:bold;"></i>
+          <!-- 删除 -->
+          <!-- 删除图标 -->
+          <el-button type="text" @click="open(scope.row,scope.$index)">
+            <i class="icon iconfont icon-shanchu" style="font-size:18px; font-weight:bold ;"></i>
           </el-button>
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
+          <!-- 删除弹窗 -->
           <el-dialog
             :title="title1"
             :visible.sync="dialogEditgsVisible1"
@@ -153,7 +160,7 @@ export default {
       dialogFormVisible: false,
       form: {
         name: "",
-        region: "",
+        abilityId: "",
         date1: "",
         date2: "",
         delivery: false,
@@ -171,7 +178,7 @@ export default {
         name: "",
         region: ""
       },
-      //点击编辑是的data
+      //点击编辑时的data
       addForm: {
         name: "",
         sort: 99
@@ -179,7 +186,7 @@ export default {
       editForm: {
         name: "",
         sort: 99,
-        arrayAbility:''
+        arrayAbility: ""
       },
       title: "",
       title1: "",
@@ -203,7 +210,6 @@ export default {
       flag: false,
       //列表数据
       tableData: [
-<<<<<<< HEAD
         // {
         //   abilityIDs: "",
         //   abilityNames: "",
@@ -217,72 +223,6 @@ export default {
         //   name: "王8虎",
         //   address: "上海市普陀区金沙江路 1515 弄"
         // }
-=======
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国5联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国7联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国6联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国5联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国4联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国3联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国2联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国1联通"
-        }
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
       ],
       tableLabel: [
         { label: "租户ID", prop: "tenantID" },
@@ -304,8 +244,8 @@ export default {
   },
   methods: {
     handleSubmit() {
-      console.log('0000000000')
-      console.log(this.$data.form.name,this.$data.form.region,'=========')
+      console.log("0000000000");
+      console.log(this.$data.form.name, this.$data.form.region, "=========");
     },
     //点击删除是触发函数
     open(index) {
@@ -353,23 +293,13 @@ export default {
       // this.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
       this.filtertableData = []; //过滤后的数据
       this.tableData.forEach((value, index) => {
-<<<<<<< HEAD
         console.log(value, "value");
         if (value.tenantID && value.code) {
-=======
-        // console.log(value,'value')
-        if (value.tenantID && value.tenantName) {
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           console.log(this.tableDataName, this.tableDataValue, "----9");
           console.log(typeof value.tenantID.toString(), "value.tenantID"); //number
           if (
-<<<<<<< HEAD
             value.tenantID.toString().indexOf(this.tableDataName) != -1 &&
             value.code.indexOf(this.tableDataValue) != -1
-=======
-            value.tenantID.indexOf(this.tableDataName) != -1 &&
-            value.tenantName.indexOf(this.tableDataValue) != -1
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           ) {
             this.filtertableData.push(value);
             console.log(this.filtertableData, "this.filtertableData");
@@ -417,40 +347,91 @@ export default {
      * @param
      */
     editgsForm(index, row) {
+      console.log(index,"index");
+      console.log(row, "row");
+      // abilityIDs: "111,116,115,114,122,113,112,119"
+      // abilityNames: "1人脸检测（照片中包含若干人脸）,2人脸特征值缓存更新,3人脸比对（两组512位双精度人脸特征值）,4人脸比对（一张单一人脸图片，一组512位双精度人脸特征值,5人脸信息识别（单一人脸图片）,6人脸比对（两张单一人脸图片）,7人脸照片转换为特征值（照片中只含一个人脸）,8人脸信息识别（512位双精度人脸特征值）"
+      // arrayAbility: (8) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+      // code: (...)
+      // createTime: "2019-10-15 17:18:26"
+      // tenantID: 10
+      // tenantName: "电信"
       this.dialogEditgsVisible = true;
       (this.title = "编辑"), (this.title1 = "删除");
-      this.editForm = row;
-      var arr1=[],arr2=[];
-      arr1=row.abilityIDs.split(',');
-      arr2=row.abilityNames.split(',');
-      var arr=[];
-      
-      arr1.forEach((obj,index)=>{
-        var o={};
-        o.value=obj;
-        o.name=arr2[index];
+      this.editForm = row; // editForm 是???  row 是???
+      var arr1 = [],
+        arr2 = [];
+      console.log(row.abilityIDs, "row.abilityIDs"); //111,116,115,114,122,113,112,119 row.abilityIDs
+      arr1 = row.abilityIDs.split(","); //arr1是什么, row.abilityIDs是什么???
+      console.log(arr1, "arr1"); //["111", "116", "115", "114", "122", "113", "112", "119"]
+      arr2 = row.abilityNames.split(",");
+      console.log(arr2, "arr2"); //["人脸检测（照片中包含若干人脸）", "人脸特征值缓存更新", "人脸比对（两组512位双精度人脸特征值）", "人脸比对（一张单一人脸图片，一组512位双精度人脸特征值", "人脸信息识别（单一人脸图片）", "人脸比对（两张单一人脸图片）", "人脸照片转换为特征值（照片中只含一个人脸）", "人脸信息识别（512位双精度人脸特征值）"]
+      var arr = [];
+
+      arr1.forEach((obj, index) => {
+        //obj 是arr1中的每一项
+        var o = {};
+        o.value = obj;
+        o.name = arr2[index];
         arr.push(o);
-      })
-      this.editForm.arrayAbility=arr;
-
-    },
-
-    saveEditForm(aaa) {
-      this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
-        if (valid) {
-          // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
-          //   alert('更新成功');
-          this.dialogEditgsVisible = false;
-          this.init();
-          console.log(valid);
-          // })
-        }
+        console.log(o, "oooo");
       });
+      console.log(arr, "arr");
+      //  [{value: "111", name: "人脸检测（照片中包含若干人脸）"},
+      //   {value: "116", name: "人脸特征值缓存更新"},
+      //   {value: "115", name: "人脸比对（两组512位双精度人脸特征值）"},
+      //   {value: "114", name: "人脸比对（一张单一人脸图片，一组512位双精度人脸特征值"},
+      //   {value: "122", name: "人脸信息识别（单一人脸图片）"},
+      //   {value: "113", name: "人脸比对（两张单一人脸图片）"},
+      //   {value: "112", name: "人脸照片转换为特征值（照片中只含一个人脸）"},
+      //   {value: "119", name: "人脸信息识别（512位双精度人脸特征值）"}]
+      this.editForm.arrayAbility = arr; //arr赋值给editForm.arrayAbility
+    },
+   
+    saveEditForm(aaa,bbb,name) {
+      var that=this;
+      var param=new URLSearchParams();
+      param.append("tenantID",this.editForm.tenantID);
+      param.append("tenantName",this.editForm.tenantName);
+      param.append("abilityIDs",this.editForm.abilityIDs);
+      var params1={
+        tenantID:20,      
+        abilityIDs:this.form.abilityId
+      }
+      // var header={
+      //   headers:{
+      //     "Content-Type":"application/x-www-form-urlencoded"
+      //   }
+      // }
+      this.$axios
+        .post("/oms-basic/tenant!editTenant.json",param)
+        .then(function(response) {
+          console.log(response)
+          if(response.data.code==10000){           
+            that.dialogEditgsVisible=false;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+
+      // this.$refs[aaa].validate(valid => {
+      //   console.log(this.$refs[aaa]);
+      //   if (valid) {
+      //     // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
+      //     //   alert('更新成功');
+      //     this.dialogEditgsVisible = false;
+      //     this.init();
+      //     console.log(valid);
+      //     // })
+      //   }
+      // });
     },
     getData() {}
   },
   mounted() {
+    //调取能力值库 this.editForm.arrayAbility=res;
+    
     this.handleSubmit();
 
     //
@@ -478,7 +459,6 @@ export default {
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-
 .home {
   height: 870px;
   background: #fff;
