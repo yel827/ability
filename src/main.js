@@ -11,7 +11,8 @@ Vue.use(ElementUI)
 import Axios from 'axios';
 // 给Vue的原型挂载 $axios属性
 Vue.prototype.$axios = Axios;
-
+import qs from 'qs'
+Vue.prototype.$qs = qs
 
 import './assets/icon/iconfont.css'
 //echarts图表

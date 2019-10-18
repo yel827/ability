@@ -12,30 +12,37 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="doFilter">搜索</el-button>
-          <el-button @click="addTenant">+ 添加租户</el-button>
+          <el-button @click="dialogVisible = true">+ 添加租户</el-button>
           <!--  -->
-          <el-dialog title="添加租户" :visible.sync="dialogFormVisible">
-            <el-form :model="form">
-              <el-form-item label="租户名称" :label-width="formLabelWidth">
-                <el-input v-model="form.name" autocomplete="off"></el-input>
-              </el-form-item>
-              <el-form-item label="授权能力" :label-width="formLabelWidth">
-                <el-select v-model="form.region" multiple placeholder="请选择授权能力">
-                  <el-option label="语音能力" value="shanghai"></el-option>
-                  <el-option label="视频流" value="beijing"></el-option>
-                  <el-option label="分析能力" value="beijing111"></el-option>
-                </el-select>
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                ></el-option>
-              </el-form-item>
-            </el-form>
+          <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+            <el-row>
+              租户ID
+              <el-input v-model="value" style="width: 70%;margin: 10px 0 10px 0"></el-input>
+            </el-row>
+            <el-row>
+              租户名称
+              <el-input v-model="productName" style="width: 70%;margin: 10px 0 10px 0"></el-input>
+            </el-row>
+            <el-row>
+              授权码
+              <el-input style="width: 70%;margin: 10px 0 10px 0"></el-input>
+            </el-row>
+            <el-row>
+              授权能力识别码
+              <el-input style="width: 70%;margin: 10px 0 10px 0"></el-input>
+            </el-row>
+            <el-row>
+              授权能力
+              <el-input style="width: 70%;margin: 10px 0 10px 0"></el-input>
+            </el-row>
+            <el-row>
+              创建时间
+              <el-input style="width: 70%;margin: 10px 0 10px 0"></el-input>
+            </el-row>
+
             <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogFormVisible = false">取 消</el-button>
-              <el-button type="primary" @click="handleSubmit ">确 定</el-button>
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="addData">确 定</el-button>
             </div>
           </el-dialog>
           <!--  -->
@@ -91,7 +98,12 @@
               </el-form-item>
               <el-form-item label="授权能力" :label-width="formLabelWidth">
                 <el-select v-model="form.region" placeholder="请选择活动区域">
-                  <el-option v-for="(o,j) in editForm.arrayAbility" :key="j" :label="o.name" :value="o.vlaue"></el-option>
+                  <el-option
+                    v-for="(o,j) in editForm.arrayAbility"
+                    :key="j"
+                    :label="o.name"
+                    :value="o.vlaue"
+                  ></el-option>
                 </el-select>
               </el-form-item>
             </el-form>
@@ -101,20 +113,18 @@
               <el-button type="primary" @click="saveEditForm('editForm')">确 定</el-button>
             </div>
           </el-dialog>
-<<<<<<< HEAD
-          <el-button type="text" @click="edit">配置</el-button>
-          <el-button type="text" @click="open(scope.row,scope.$index)">删除</el-button>
-=======
           <el-button type="text" @click="edit" style="margin-left:10px;">
             <i class="icon iconfont icon-icon-test" style="font-size:18px; font-weight:bold;"></i>
           </el-button>
           <!--  -->
-          
+
           <!--  -->
           <el-button type="text" @click="open(scope.$index)">
-            <i class="icon iconfont icon-shanchu" style="color:orange; font-size:18px; font-weight:bold;"></i>
+            <i
+              class="icon iconfont icon-shanchu"
+              style="color:orange; font-size:18px; font-weight:bold;"
+            ></i>
           </el-button>
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           <el-dialog
             :title="title1"
             :visible.sync="dialogEditgsVisible1"
@@ -151,6 +161,16 @@ export default {
     return {
       dialogTableVisible: false,
       dialogFormVisible: false,
+      value: "",
+      search: "",
+      dialogVisible: false,
+      dialogVisibleb: false,
+      visible: false,
+      productName: "",
+      productDescription: "",
+      productNameb: "",
+      productDescriptionb: "",
+      _index: "",
       form: {
         name: "",
         region: "",
@@ -179,7 +199,7 @@ export default {
       editForm: {
         name: "",
         sort: 99,
-        arrayAbility:''
+        arrayAbility: ""
       },
       title: "",
       title1: "",
@@ -202,88 +222,7 @@ export default {
       filterTableData: [],
       flag: false,
       //列表数据
-      tableData: [
-<<<<<<< HEAD
-        // {
-        //   abilityIDs: "",
-        //   abilityNames: "",
-        //   code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-        //   createTime: "2019-10-15 16:21:42",
-        //   tenantID: 8,
-        //   tenantName: "中国联通"
-        // },
-        // {
-        //   id: "2016-05-02",
-        //   name: "王8虎",
-        //   address: "上海市普陀区金沙江路 1515 弄"
-        // }
-=======
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国5联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国7联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国6联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国5联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国4联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国3联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国2联通"
-        },
-        {
-          abilityIDs: "1234",
-          abilityNames: "5678",
-          code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-          createTime: "2019-10-15 16:21:42",
-          tenantID: 8,
-          tenantName: "中国1联通"
-        }
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
-      ],
+      tableData: [],
       tableLabel: [
         { label: "租户ID", prop: "tenantID" },
         { label: "租户名称", prop: "tenantName" },
@@ -292,20 +231,50 @@ export default {
         { label: "授权能力", prop: "abilityNames" },
         { label: "创建时间", prop: "createTime" }
       ]
-      // tableLabel: [
-      //   { label: "租户ID", prop: "id" },
-      //   { label: "租户名称", prop: "name" },
-      //   { label: "授权码", prop: "address" },
-      //   { label: "授权能力编号", prop: "address" },
-      //   { label: "授权能力", prop: "address" },
-      //   { label: "创建时间", prop: "address" }
-      // ]
     };
   },
   methods: {
+    //添加
+    addData() {
+      //显示弹窗
+      var that = this;
+      that.dialogVisible = false;
+      //调取添加接口
+      let header = {headers:{
+        "Content-Type":"application/x-www-form-urlencoded"
+      }}
+      //1.
+      var params=new URLSearchParams();
+      params.append("tenantName",that.productName)
+      params.append("abilityIDs",that.value);
+      //2. that.$qs.stringify(params1)
+      
+      var params1={
+        "tenantName":that.productName,
+        "abilityIDs":that.value
+      }
+      that.$axios
+        .post("/oms-basic/tenant!addTenant.json", that.$qs.stringify(params1),header)
+        //成功
+        .then(res => {
+          //返回的数据
+          console.log("res777", res);
+          //自己定义的空数组tableData
+          // this.tableData.splice(0, this.tableData.length)
+          var arrs = { tenantName: that.productName, abilityIDs: that.value };
+          that.tableData.splice(that.tableData.length, 0, arrs);
+     
+        })
+        //失败
+        .catch(error => {
+          console.log(error);
+        });
+    },
+  
+
     handleSubmit() {
-      console.log('0000000000')
-      console.log(this.$data.form.name,this.$data.form.region,'=========')
+      console.log("0000000000");
+      console.log(this.$data.form.name, this.$data.form.region, "=========");
     },
     //点击删除是触发函数
     open(index) {
@@ -316,13 +285,8 @@ export default {
         center: true
       })
         .then(() => {
-          console.log(index);
-          // this.tableData.splice(index, 1);
-
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
+          console.log(index, "下标");
+          this.tableData.splice(index, 1);
         })
         .catch(() => {
           console.log("11111111");
@@ -341,10 +305,10 @@ export default {
     currentPage1() {
       console.log("currentPage1");
     },
-    addTenant() {
-      this.dialogTableVisible = true;
-      this.dialogFormVisible = true;
-    },
+    // addTenant() {
+    //   this.dialogTableVisible = true;
+    //   this.dialogFormVisible = true;
+    // },
     doFilter() {
       if (this.tableDataName == "" || this.tableDataValue == "") {
         this.$message.warning("查询条件不能为空！");
@@ -353,23 +317,13 @@ export default {
       // this.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
       this.filtertableData = []; //过滤后的数据
       this.tableData.forEach((value, index) => {
-<<<<<<< HEAD
-        console.log(value, "value");
-        if (value.tenantID && value.code) {
-=======
         // console.log(value,'value')
         if (value.tenantID && value.tenantName) {
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           console.log(this.tableDataName, this.tableDataValue, "----9");
           console.log(typeof value.tenantID.toString(), "value.tenantID"); //number
           if (
-<<<<<<< HEAD
-            value.tenantID.toString().indexOf(this.tableDataName) != -1 &&
-            value.code.indexOf(this.tableDataValue) != -1
-=======
             value.tenantID.indexOf(this.tableDataName) != -1 &&
             value.tenantName.indexOf(this.tableDataValue) != -1
->>>>>>> 24777a54e8eb9dae8eb05000d1411be808387570
           ) {
             this.filtertableData.push(value);
             console.log(this.filtertableData, "this.filtertableData");
@@ -420,42 +374,48 @@ export default {
       this.dialogEditgsVisible = true;
       (this.title = "编辑"), (this.title1 = "删除");
       this.editForm = row;
-      var arr1=[],arr2=[];
-      arr1=row.abilityIDs.split(',');
-      arr2=row.abilityNames.split(',');
-      var arr=[];
-      
-      arr1.forEach((obj,index)=>{
-        var o={};
-        o.value=obj;
-        o.name=arr2[index];
-        arr.push(o);
-      })
-      this.editForm.arrayAbility=arr;
+      var arr1 = [],
+        arr2 = [];
+      arr1 = row.abilityIDs.split(",");
+      arr2 = row.abilityNames.split(",");
+      var arr = [];
 
+      arr1.forEach((obj, index) => {
+        var o = {};
+        o.value = obj;
+        o.name = arr2[index];
+        arr.push(o);
+      });
+      this.editForm.arrayAbility = arr;
     },
 
     saveEditForm(aaa) {
-      this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
+      this.aaa.arrayAbility(valid => {
+        console.log(this.$refs[aaa], "111111");
         if (valid) {
-          // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
-          //   alert('更新成功');
-          this.dialogEditgsVisible = false;
-          this.init();
-          console.log(valid);
-          // })
+          this.$axios
+            .post(
+              `/oms-basic/tenant!selectTenantBy.json/${this.editForm.arrayAbility}`,
+              this.editForm
+            )
+            .then(res => {
+              alert("更新成功");
+              this.dialogEditgsVisible = false;
+              this.init();
+              console.log(valid);
+            });
         }
       });
     },
     getData() {}
   },
   mounted() {
-    this.handleSubmit();
+    this.handleSubmit(),
 
     //
     //发送ajax请求获取数据
-    this.$axios
+    
+      this.$axios
       .post("/oms-basic/tenant!selectTenantBy.json", {
         // tenantName: "110",
         // abilityIDs: "112"
@@ -465,6 +425,8 @@ export default {
         this.tableData = [].concat(res.data.data);
         // console.log(this.tableData, "this.tableData");
       });
+    
+    
   },
   created() {
     this.getData();
@@ -478,7 +440,6 @@ export default {
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-
 .home {
   height: 870px;
   background: #fff;
