@@ -4,10 +4,10 @@
     <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="授权码">
-          <el-input v-model="formInline.name" placeholder="授权码"></el-input>
+          <el-input v-model="tableDataValue" placeholder="授权码"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
+          <el-button type="primary" @click="doFilter">搜索</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -22,42 +22,55 @@
     >
       <template>
         <!-- v-for="(item, index) in tableLabel" -->
-        <el-table-column show-overflow-tooltip prop="tenantID" label="租户ID"></el-table-column>
-        <el-table-column show-overflow-tooltip prop="tenantName" label="住户名称"></el-table-column>
         <el-table-column show-overflow-tooltip prop="code" label="授权码"></el-table-column>
-        <el-table-column show-overflow-tooltip prop="abilityIDs" label="授权能力识别码"></el-table-column>
-        <el-table-column show-overflow-tooltip prop="abilityNames" label="授权能力">
+        <el-table-column show-overflow-tooltip prop="tenantID" label="租户ID"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="tenantName" label="租户名称"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="abilityID" label="授权能力编号"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="abilityName" label="授权能力">
           <!-- <template slot-scope="scope">
             <div v-for="(item,index) in scope.row.abilityNames.split(',')" :key="index">{{item}}</div>
           </template>-->
         </el-table-column>
-        <el-table-column show-overflow-tooltip prop="createTime" label="创建时间"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="loadUrl" label="负载地址"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="maxNum" label="最大连接数"></el-table-column>
       </template>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editgsForm(scope.$index, scope.row)">
+          <el-button type="text" @click="editgsForm(scope.$index,scope.row)">
             <i class="icon iconfont icon-bianji" style="font-size:18px; font-weight:bold;"></i>
           </el-button>
           <el-dialog
             class="headers"
             :title="title"
             :visible.sync="dialogEditgsVisible"
-            @close="closeDialogVisible"
             width="30%"
             center
+            @close="closeDialogVisible"
           >
             <el-form :model="editForm" :rules="rules" ref="editForm">
-              <el-form-item label="类别名称" :label-width="formLabelWidth">
-                <el-input v-model="editForm.name" autocomplete="off"></el-input>
+              <el-form-item label="能力编号" :label-width="formLabelWidth">
+                <el-input readonly v-model="editForm.abilityID" autocomplete="off"></el-input>
               </el-form-item>
-              <el-form-item label="排序" :label-width="formLabelWidth">
-                <el-input v-model.number="editForm.sort"></el-input>
+              <el-form-item label="租户名称" :label-width="formLabelWidth">
+                <el-input readonly v-model="editForm.tenantName" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="授权码" :label-width="formLabelWidth">
+                <el-input readonly v-model="editForm.code" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="授权能力" :label-width="formLabelWidth">
+                <el-input readonly v-model="editForm.abilityName" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="负载地址" :label-width="formLabelWidth">
+                <el-input v-model="editForm.loadUrl" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="最大连接" :label-width="formLabelWidth">
+                <el-input v-model="editForm.maxNum" autocomplete="off"></el-input>
               </el-form-item>
             </el-form>
 
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogEditgsVisible = false">取 消</el-button>
-              <el-button type="primary" @click="saveEditForm('editForm')">确 定</el-button>
+              <el-button type="primary" @click="saveEditForm()">确 定</el-button>
             </div>
           </el-dialog>
         </template>
@@ -70,19 +83,21 @@
         :current-page.sync="currentPage1"
         :page-size="100"
         layout="total, prev, pager, next"
-        :total="1000"
+        :total="total"
       ></el-pagination>
     </div>
   </div>
 </template>
 
  <script>
+import bus from "../js/bus.js";
 export default {
   data() {
     return {
       currentPage: 1, //初始页
       pagesize: 10, //每页的数据
-      total:0,
+      total: 0,
+      tableDataValue: "",
       formInline: {
         user: "",
         name: "",
@@ -94,14 +109,27 @@ export default {
       },
       editForm: {
         name: "",
-        sort: 99
+        sort: 99,
+        arrayAbility: [],
+        temArr: []
+      },
+      _index: "",
+      form: {
+        name: "",
+        abilityId: [],
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: ""
       },
       title: "",
       title1: "",
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
-
+      formLabelWidth: "120px",
       rules: {
         name: [
           { required: true, message: "请输入名称" },
@@ -109,16 +137,15 @@ export default {
         ],
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
-      tableData: [
-        
-      ],
+      tableData: [],
       tableLabel: [
+        { label: "授权码", prop: "code" },
         { label: "租户ID", prop: "tenantID" },
         { label: "租户名称", prop: "tenantName" },
-        { label: "授权码", prop: "code" },
-        { label: "授权能力编号", prop: "abilityIDs" },
-        { label: "授权能力", prop: "abilityNames" },
-        { label: "创建时间", prop: "createTime" }
+        { label: "授权能力编号", prop: "abilityID" },
+        { label: "授权能力", prop: "abilityName" },
+        { label: "负载地址", prop: "loadUrl" },
+        { label: "最大连接数", prop: "maxNum" }
       ]
     };
   },
@@ -132,7 +159,6 @@ export default {
     currentPage1() {
       console.log("currentPage1");
     },
-
     currentChangePage(list) {
       let from = (this.currentPage - 1) * this.pageSize;
       let to = this.currentPage * this.pageSize;
@@ -159,46 +185,77 @@ export default {
     },
 
     /**
-     *点击编辑删除按钮，弹出编辑删除模态框
+     *
      * @param
      */
-    editgsForm(val) {
+    editgsForm(index, row) {
       this.dialogEditgsVisible = true;
+      console.log(this.editForm.temArr,'0000');
+      row.temArr = this.editForm.temArr;
+      console.log(row, "row");
+
       (this.title = "编辑"), (this.title1 = "删除");
-      this.editForm.id = val.id;
-      this.editForm.name = val.name;
-      this.editForm.sort = val.sort;
+      this.editForm = row;
+      console.log(this.editForm,"xxxxxxx")
+      var arr = [];
+      this.form.abilityId = row.abilityID; //arr赋值给editForm.arrayAbility
+      this.editForm.arrayAbility = this.editForm.temArr;
+      console.log(this.editForm.temArr);
     },
-     doFilter() {
-      
-      // if (this.tableDataName == "" && this.tableDataValue == "") {
-      //   this.$message.warning("查询条件不能为空！");
-      //   return;
+
+    saveEditForm() {
+      var that = this;
+      var params1 = {
+        abilityID: parseInt(this.form.abilityId),
+        loadUrl:this.editForm.loadUrl,
+        maxNum:parseInt(this.editForm.maxNum),
+      };
+      // var header={
+      //   headers:{
+      //     "Content-Type":"application/x-www-form-urlencoded"
+      //   }
       // }
-      //this_.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
+
+
+      /*
+      *
+      *提交成功页面数据无法改变
+      * 
+      * */
+      this.$axios
+        .post("/oms-basic/ability!editTenantAbility.json", this.$qs.stringify(params1))
+        .then(res=>{
+          if (res.data.code == 10000) {
+            that.dialogEditgsVisible = false;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    //搜索
+    doFilter() {
       this.filtertableData = []; //过滤后的数据
       var IDcode = {
-        tenantID:this.tableDataName,
-        code:this.tableDataValue
-      }
-      this.$axios.post("/oms-basic/tenant!selectTenantBy.json",this.$qs.stringify(IDcode))
-      .then(res=>{
-        console.log(res.data.data)
-        var subjectY = res.data.data
-        // if(subjectY.tenantID === this.tableDataName.value &&
-        //   subjectY.code == this.tableDataValue.value
-        // ){
-        //   this.filtertableData.push(subjectY);
-        // }
-        this.tableData=subjectY;
-        this.total=res.data.count;
+        code: this.tableDataValue
+      };
+      this.$axios
+        .post(
+          "/oms-basic/ability!selectByCode.json",
+          this.$qs.stringify(IDcode)
+        )
+        .then(res => {
+          console.log(res.data.data);
+          var subjectY = res.data.data;
+          this.tableData = subjectY;
+          this.total = res.data.count;
 
-        console.log(this.filtertableData,"12")
-        console.log(this.tableData,"ssss")
-      })
-      .catch(error=>{
-        console.log(error)
-      })
+          console.log(this.filtertableData, "12");
+          console.log(this.tableData, "ssss");
+        })
+        .catch(error => {
+          console.log(error);
+        });
       //页面数据改变重新统计数据数量和当前页
       this.currentPage = 1;
       this.totalItems = this.filtertableData.length;
@@ -208,27 +265,24 @@ export default {
       this.flag = true;
     },
   },
-   mounted() {
+  created() {
+    bus.$on("kala", function(val) {
+      console.log(val);
+    });
+  },
+  mounted() {
     //调取能力值库 this.editForm.arrayAbility=res;
-
-    this.handleSubmit();
-
     //
     //发送ajax请求获取数据
 
-    this.$axios
-      .post("/oms-basic/tenant!selectTenantBy.json", {
-        // tenantName: "110",
-        // abilityIDs: "112"
-      })
-      .then(res => {
-        // this.tableData = res.data.data;
-        
-        this.tableData = [].concat(res.data.data);
-        this.total=res.data.count;
-        // console.log(this.tableData, "this.tableData");
-      });
-  },
+    this.$axios.post("/oms-basic/ability!selectByCode.json").then(res => {
+      // this.tableData = res.data.data;
+      console.log(res);
+      this.tableData = [].concat(res.data.data);
+      this.total = res.data.count;
+      // console.log(this.tableData, "this.tableData");
+    });
+  }
 };
 </script>
 
