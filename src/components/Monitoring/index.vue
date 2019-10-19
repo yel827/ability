@@ -4,6 +4,7 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="用户管理" name="first">
           <div class="search">
+            <!-- from表单 -->
             <el-form :inline="true" :model="formInline" class="demo-form-inline">
               <el-form-item label="主机名称" class="right">
                 <el-input v-model="formInline.name" placeholder="主机名称"></el-input>
@@ -39,6 +40,7 @@
               </el-form-item>
             </el-form>
           </div>
+          <!-- table表格结构 -->
           <el-table
             :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
             style="width: 100%;"

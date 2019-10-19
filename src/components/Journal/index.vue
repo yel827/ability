@@ -2,19 +2,15 @@
   <div class="home">
     <div class="titleQ">日志列表</div>
     <div class="search">
+      <!-- form表单 //form表单里面包含2个select/2个form-item/1个date-picker/-->
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
+        <!-- 租户名称 -->
         <span class="demonstration">租户名称</span>
-        <el-select v-model="values" filterable placeholder="请选择" class="right">
-          <el-option
-            v-for="item in optionss"
-            :key="item.values"
-            :label="item.labels"
-            :value="item.values"
-          ></el-option>
-        </el-select>
-
+        <el-input v-model="values"  placeholder="租户名称" class="right">
+        </el-input>
+        <!-- 日志等级 -->
         <span class="demonstration">日志等级</span>
-        <el-select v-model="value" filterable placeholder="请选择" class="right">
+        <el-select v-model="formInline.level" filterable placeholder="日志等级" class="right">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -22,10 +18,11 @@
             :value="item.value"
           ></el-option>
         </el-select>
-
+        <!-- 来源IP -->
         <el-form-item label="来源IP" class="right">
           <el-input v-model="formInline.name" placeholder="来源IP"></el-input>
         </el-form-item>
+        <!-- 时间选择 -->
         <span class="demonstration">时间选择</span>
         <el-date-picker
           v-model="value2"
@@ -38,6 +35,7 @@
           end-placeholder="结束日期"
           :picker-options="pickerOptions"
         ></el-date-picker>
+        <!-- 搜索 导出当前按钮 -->
         <el-form-item>
           <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
           <el-button type="primary" class="right">导出当前</el-button>
@@ -46,22 +44,27 @@
     </div>
     <div id="mainl" style="width:100%;height:200px;"></div>
     <div id="Detailedy">
-      <i class="el-icon-pie-chart" id="bd"></i> 日志明细
+      <i class="el-icon-pie-chart" id="bd"></i> 列表明细
     </div>
+    <!-- table布局 -->
     <el-table
       :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
       style="width: 100%;"
       class="tabP"
     >
-      <el-table-column prop="date" label="租户ID" width="180"></el-table-column>
-      <el-table-column prop="name" label="租户姓名" width="180"></el-table-column>
-      <el-table-column prop="address" label="授权码"></el-table-column>
-      <el-table-column prop="address" label="授权能力编号"></el-table-column>
-      <el-table-column prop="address" label="授权能力"></el-table-column>
-      <el-table-column prop="address" label="创建时间"></el-table-column>
+      <el-table-column prop="logID" label="日志ID" width="180"></el-table-column>
+      <el-table-column prop="tenantName" label="租户名" width="180"></el-table-column>
+      <el-table-column prop="level" label="日志等级"></el-table-column>
+      <el-table-column prop="source" label="来源IP"></el-table-column>
+      <el-table-column prop="responseTime" label="调用时长"></el-table-column>
+      <el-table-column prop="logType" label="日志类型"></el-table-column>
+      <el-table-column prop="msg" label="日志内容"></el-table-column>
+      <!-- 造作column -->
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editgsForm(scope.$index, scope.row)"><i class="icon iconfont icon-chakan" style="font-size:18px; font-weight:bold;"></i></el-button>
+          <el-button type="text" @click="viewdetail(scope.$index, scope.row)">
+            <i class="icon iconfont icon-chakan" style="font-size:18px; font-weight:bold;"></i>
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -75,8 +78,39 @@
         :total="1000"
       ></el-pagination>
     </div>
+    <el-dialog
+  title="提示"
+  :visible.sync="dialogDetailsVisible"
+  width="50%" style="text-align:center">
+  <ul class="detailBox">
+    <li>
+      <div class="bg_cyan">日志 ID</div>  
+      <div class="msgBox">{{detailForm.logID}}</div>
+    </li>
+     <li> 
+      <div class="bg_cyan">租户名称</div>
+      <div class="msgBox">{{detailForm.tenantName}}</div>
+    </li>
+    <li>
+      <div class="bg_cyan">日志等级</div>
+      <div class="msgBox">{{detailForm.level}}</div>
+    </li>
+    <li>
+      <div class="bg_cyan">来源IP</div>
+      <div class="msgBox">{{detailForm.source}}</div>
+    </li>
+    <li>
+      <div class="bg_cyan">调用时长</div>
+      <div class="msgBox">{{detailForm.updateTime}}</div>
+    </li>
+    <li>
+      <div class="bg_cyan">日志信息</div>
+      <div class="msgBox">{{detailForm.msg}}</div>
+    </li>
+  </ul>
+  </el-dialog>
   </div>
-</template>
+</template> 
 
  <script>
 import echarts from "echarts";
@@ -118,8 +152,10 @@ export default {
       formInline: {
         user: "",
         name: "",
-        region: ""
+        region: "",
+        level:''
       },
+      detailForm:{},
       addForm: {
         name: "",
         sort: 99
@@ -133,6 +169,7 @@ export default {
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
+      dialogDetailsVisible:false,
       options: [
         {
           value: "选项1",
@@ -188,85 +225,67 @@ export default {
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
       tableData: [
-        {
-          date: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王3虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王4虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王5虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王6虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王7虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王8虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王10虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
+        // {
+        //   createTime:"",  //创建时间
+        //   logID: 11,  // 日志ID
+        //   logType:'',  //日志类型
+        //   level:"",  //日志等级
+        //              //租户名 ????
+        //   source: "http://192.168.0.1:8080",  //来源IP  
+        //   responseTime: 500 , //调用时间
+        //   msg: "日志正常",    //日志内容   
+        // }
       ]
     };
   },
-  methods: {
+
+    methods: {
+      dateTransfer(date){
+    var y = date.getFullYear();
+    var m = date.getMonth() + 1;
+    m = m < 10 ? ('0' + m) : m;
+    var d = date.getDate();
+    d = d < 10 ? ('0' + d) : d;
+    var h = date.getHours();
+    var minute = date.getMinutes();
+    minute = minute < 10 ? ('0' + minute) : minute;
+    return y + '-' + m + '-' + d+' '+'00:00:00';
+      },
+      onSubmit() {
+
+          if( !(this.formInline.level || this.formInline.name || this.value2) ){return};
+        var formData={};
+        // this.$data  
+      
+        if(this.formInline.level){
+          formData.level=this.formInline.level
+        }
+        if(this.formInline.name){
+          formData.source=this.formInline.name
+        }
+        console.log(this.value2,'this.value2')
+
+        if(this.value2!=""&&this.value2!=undefined){
+          formData.startTime=this.dateTransfer(this.value2[0])
+          formData.endTime=this.dateTransfer(this.value2[1])
+        }
+
+        this.$axios.post('/oms-basic/abilityLog!selectLog.json',formData).then(res =>{
+          this.tableData=res.data.data
+        }).catch(err =>{
+
+        })
+        //
+
+      },
+      viewdetail(index,row) {
+        console.log(index,'index')
+        this.dialogDetailsVisible=true;
+        this.detailForm=row;        
+      },
+
+
+      //--------------------
     getEcharts() {
       var dataAxis = [
         "点",
@@ -408,6 +427,7 @@ export default {
       });
     },
 
+
     //////
     currentChangePage(list) {
       let from = (this.currentPage - 1) * this.pageSize;
@@ -435,7 +455,7 @@ export default {
     },
 
     editgsForm(val) {
-      this.$router.push("/LogDetails")
+      this.$router.push("/LogDetails");
     },
     saveEditForm(aaa) {
       this.$refs[aaa].validate(valid => {
@@ -449,10 +469,27 @@ export default {
           // })
         }
       });
+    },
+    getJournal(){
+this.$axios
+      .post("/oms-basic/abilityLog!selectLog.json", {
+      })
+      .then( res => {
+        console.log(res.data.data,'res.data.data')
+        this.tableData = this.tableData.concat(res.data.data);
+        // console.log(this.tableData,"this.tableData")
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
     }
   },
+
+
   mounted() {
-    this.getEcharts();
+    // this.getEcharts();
+    this.getJournal();
+    
   }
 };
 </script>
@@ -501,4 +538,32 @@ export default {
   font-weight: bold;
   border-radius: 50%;
 }
+.detailBox{
+  li{
+    border-top:2px solid red;
+        border-left: 2px solid red;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .bg_cyan{
+      line-height:40px;
+      background-color: #f9fbfd;
+      width: 100px;
+      font:14px/40px "";
+      text-align: center;
+      border-bottom:2px solid red;
+      border-right:2px solid red;
+    }
+    .msgBox{
+      flex:1;
+      line-height:40px;
+      text-indent:30px !important;
+      border-bottom:2px solid red;
+      border-right:2px solid red;
+
+    }
+
+  }
+}
+
 </style>
