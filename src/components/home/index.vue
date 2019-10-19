@@ -96,14 +96,11 @@
 
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogEditgsVisible = false">取 消</el-button>
-              <el-button
-                type="primary"
-                @click="saveEditForm(editForm.arrayAbility,scope.row.tenantID,scope.row.tenantName)"
-              >确 定</el-button>
+              <el-button type="primary" @click="saveEditForm()">确 定</el-button>
             </div>
           </el-dialog>
           <!-- 设置 -->
-          <el-button type="text" @click="edit">
+          <el-button type="text" @click="edit(scope.row)">
             <i
               class="icon iconfont icon-icon-test"
               style="font-size:18px; font-weight:bold;margin-left:10px;"
@@ -146,6 +143,7 @@
 </template>
 
  <script>
+ import bus from '../js/bus.js'
 export default {
   data() {
     return {
@@ -190,7 +188,7 @@ export default {
         name: "",
         sort: 99,
         arrayAbility: [],
-        temArr:[]
+        temArr: []
       },
       title: "",
       title1: "",
@@ -213,7 +211,7 @@ export default {
       filterTableData: [],
       flag: false,
       //列表数据
-      total:0,
+      total: 0,
       tableData: [
         // {
         //   abilityIDs: "",
@@ -354,10 +352,8 @@ export default {
     //   this.dialogFormVisible = true;
     // },
 
-
     //搜索
     doFilter() {
-      
       // if (this.tableDataName == "" && this.tableDataValue == "") {
       //   this.$message.warning("查询条件不能为空！");
       //   return;
@@ -365,27 +361,31 @@ export default {
       //this_.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
       this.filtertableData = []; //过滤后的数据
       var IDcode = {
-        tenantID:this.tableDataName,
-        code:this.tableDataValue
-      }
-      this.$axios.post("/oms-basic/tenant!selectTenantBy.json",this.$qs.stringify(IDcode))
-      .then(res=>{
-        console.log(res.data.data)
-        var subjectY = res.data.data
-        // if(subjectY.tenantID === this.tableDataName.value &&
-        //   subjectY.code == this.tableDataValue.value
-        // ){
-        //   this.filtertableData.push(subjectY);
-        // }
-        this.tableData=subjectY;
-        this.total=res.data.count;
+        tenantID: this.tableDataName,
+        code: this.tableDataValue
+      };
+      this.$axios
+        .post(
+          "/oms-basic/tenant!selectTenantBy.json",
+          this.$qs.stringify(IDcode)
+        )
+        .then(res => {
+          console.log(res.data.data);
+          var subjectY = res.data.data;
+          // if(subjectY.tenantID === this.tableDataName.value &&
+          //   subjectY.code == this.tableDataValue.value
+          // ){
+          //   this.filtertableData.push(subjectY);
+          // }
+          this.tableData = subjectY;
+          this.total = res.data.count;
 
-        console.log(this.filtertableData,"12")
-        console.log(this.tableData,"ssss")
-      })
-      .catch(error=>{
-        console.log(error)
-      })
+          console.log(this.filtertableData, "12");
+          console.log(this.tableData, "ssss");
+        })
+        .catch(error => {
+          console.log(error);
+        });
       //页面数据改变重新统计数据数量和当前页
       this.currentPage = 1;
       this.totalItems = this.filtertableData.length;
@@ -394,16 +394,6 @@ export default {
       //页面初始化数据需要判断是否检索过
       this.flag = true;
     },
-
-
-
-
-
-
-
-
-
-
 
     currentChangePage(list) {
       let from = (this.currentPage - 1) * this.pageSize;
@@ -429,8 +419,9 @@ export default {
 
       this.dialogEditgsVisible1 = false;
     },
-    edit() {
+    edit(index) {
       this.$router.push("/Administration");
+      bus.$emit('kala',index)
     },
     /**
      *
@@ -439,16 +430,9 @@ export default {
     editgsForm(index, row) {
       this.dialogEditgsVisible = true;
       console.log(this.editForm.temArr);
-      row.temArr=this.editForm.temArr;
+      row.temArr = this.editForm.temArr;
       console.log(row, "row");
-      // abilityIDs: "111,116,115,114,122,113,112,119"
-      // abilityNames: "1人脸检测（照片中包含若干人脸）,2人脸特征值缓存更新,3人脸比对（两组512位双精度人脸特征值）,4人脸比对（一张单一人脸图片，一组512位双精度人脸特征值,5人脸信息识别（单一人脸图片）,6人脸比对（两张单一人脸图片）,7人脸照片转换为特征值（照片中只含一个人脸）,8人脸信息识别（512位双精度人脸特征值）"
-      // arrayAbility: (8) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-      // code: (...)
-      // createTime: "2019-10-15 17:18:26"
-      // tenantID: 10
-      // tenantName: "电信"
-      
+
       (this.title = "编辑"), (this.title1 = "删除");
       this.editForm = row;
       var arr1 = [],
@@ -459,40 +443,22 @@ export default {
       arr2 = row.abilityNames.split(",");
       console.log(arr2, "arr2");
       var arr = [];
-
-      // arr1.forEach((obj, index) => {
-      //   //obj 是arr1中的每一项
-      //   var o = {};
-      //   o.ID = obj;
-      //   o.abilityName = arr2[index];
-      //   arr.push(o);
-      //   console.log(o, "oooo");
-      // });
-      console.log(arr, "arr");
-      //  [{value: "111", name: "人脸检测（照片中包含若干人脸）"},
-      //   {value: "116", name: "人脸特征值缓存更新"},
-      //   {value: "115", name: "人脸比对（两组512位双精度人脸特征值）"},
-      //   {value: "114", name: "人脸比对（一张单一人脸图片，一组512位双精度人脸特征值"},
-      //   {value: "122", name: "人脸信息识别（单一人脸图片）"},
-      //   {value: "113", name: "人脸比对（两张单一人脸图片）"},
-      //   {value: "112", name: "人脸照片转换为特征值（照片中只含一个人脸）"},
-      //   {value: "119", name: "人脸信息识别（512位双精度人脸特征值）"}]
       this.form.abilityId = row.abilityIDs; //arr赋值给editForm.arrayAbility
-      this.editForm.arrayAbility=this.editForm.temArr;
+      this.editForm.arrayAbility = this.editForm.temArr;
       console.log(this.editForm.temArr);
     },
-   
-    saveEditForm(aaa,bbb,name) {
-      var that=this;
-      var param=new URLSearchParams();
-      param.append("tenantID",this.editForm.tenantID);
-      param.append("tenantName",this.editForm.tenantName);
-      param.append("abilityIDs",this.form.abilityId.join(","));
+
+    saveEditForm() {
+      var that = this;
+      var param = new URLSearchParams();
+      param.append("tenantID", this.editForm.tenantID);
+      param.append("tenantName", this.editForm.tenantName);
+      param.append("abilityIDs", this.form.abilityId.join(","));
       console.log(this.form.abilityId);
-      var params1={
-        tenantID:this.editForm.tenantID,      
-        abilityIDs:this.form.abilityId.join(",")
-      }
+      var params1 = {
+        tenantID: this.editForm.tenantID,
+        abilityIDs: this.form.abilityId.join(",")
+      };
       // var header={
       //   headers:{
       //     "Content-Type":"application/x-www-form-urlencoded"
@@ -506,31 +472,34 @@ export default {
             that.dialogEditgsVisible = false;
           }
         })
-        .catch(function(error) {
+        .catch(function(error) {.
           console.log(error);
         });
 
-      // this.$refs[aaa].validate(valid => {
-      //   console.log(this.$refs[aaa]);
-      //   if (valid) {
-      //     // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
-      //     //   alert('更新成功');
-      //     this.dialogEditgsVisible = false;
-      //     this.init();
-      //     console.log(valid);
-      //     // })
-      //   }
-      // });
+      this.$axios
+        .post("/oms-basic/tenant!selectTenantBy.json", {
+          // tenantName: "110",
+          // abilityIDs: "112"
+        })
+        .then(res => {
+          // this.tableData = res.data.data;
+          this.tableData = [].concat(res.data.data);
+          this.total = res.data.count;
+          // console.log(this.tableData, "this.tableData");
+        });
     },
     getData() {},
-    getAbilitys(){
-      let that=this;
-      that.$axios.post('/oms-basic/ability!selectAbilityList.json').then((res)=>{
-        that.editForm.temArr=res.data.data;
-        console.log(that.editForm.temArr);
-      }).catch(()=>{
-        console.log("error")
-      })
+    getAbilitys() {
+      let that = this;
+      that.$axios
+        .post("/oms-basic/ability!selectAbilityList.json")
+        .then(res => {
+          that.editForm.temArr = res.data.data;
+          console.log(that.editForm.temArr);
+        })
+        .catch(() => {
+          console.log("error");
+        });
     }
   },
   mounted() {
@@ -549,7 +518,7 @@ export default {
       .then(res => {
         // this.tableData = res.data.data;
         this.tableData = [].concat(res.data.data);
-        this.total=res.data.count;
+        this.total = res.data.count;
         // console.log(this.tableData, "this.tableData");
       });
   },

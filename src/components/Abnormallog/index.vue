@@ -65,7 +65,7 @@
         :current-page.sync="currentPage1"
         :page-size="100"
         layout="total, prev, pager, next"
-        :total="1000"
+        :total="total"
       ></el-pagination>
     </div>
   </div>
@@ -122,6 +122,7 @@ export default {
       },
       title: "",
       title1: "",
+      total:0,
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
@@ -183,86 +184,26 @@ export default {
         {
           id: "2016-05-02",
           name: "王2虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          id: "2016-05-04",
-          name: "王3虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王4虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王5虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王6虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王7虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王8虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2016-05-03",
-          name: "王10虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          id: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
+          address: "上海市普陀区18 弄"
+        },{
+          id: "2016-05-02",
+          name: "王2虎",
+          address: "上海市普江路 1518 弄"
+        },{
+          id: "2016-05-02",
+          name: "王2虎",
+          address: "上海市普陀江路 1518 弄"
         }
+        
       ],
       tableLabel: [
-        { label: "租户ID", prop: "id" },
-        { label: "租户名称", prop: "name" },
-        { label: "授权码", prop: "address" },
-        { label: "授权能力编号", prop: "address" },
-        { label: "授权能力", prop: "address" },
-        { label: "创建时间", prop: "address" }
+        { label: "日志ID", prop: "id" },
+        { label: "租户名", prop: "name" },
+        { label: "日志等级", prop: "address" },
+        { label: "来源IP", prop: "address" },
+        { label: "调用时间", prop: "address" },
+        { label: "日志类型", prop: "address" },
+        { label: "日志内容", prop: "address" }
       ]
     };
   },
