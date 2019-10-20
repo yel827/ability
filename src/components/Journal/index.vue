@@ -6,8 +6,7 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <!-- 租户名称 -->
         <span class="demonstration">租户名称</span>
-        <el-input v-model="values"  placeholder="租户名称" class="right">
-        </el-input>
+        <el-input v-model="values" placeholder="租户名称" class="right"></el-input>
         <!-- 日志等级 -->
         <span class="demonstration">日志等级</span>
         <el-select v-model="formInline.level" filterable placeholder="日志等级" class="right">
@@ -75,40 +74,42 @@
         :current-page.sync="currentPage1"
         :page-size="100"
         layout="total, prev, pager, next"
-        :total="1000"
+        :total="total"
       ></el-pagination>
     </div>
     <el-dialog
-  title="提示"
-  :visible.sync="dialogDetailsVisible"
-  width="50%" style="text-align:center">
-  <ul class="detailBox">
-    <li>
-      <div class="bg_cyan">日志 ID</div>  
-      <div class="msgBox">{{detailForm.logID}}</div>
-    </li>
-     <li> 
-      <div class="bg_cyan">租户名称</div>
-      <div class="msgBox">{{detailForm.tenantName}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">日志等级</div>
-      <div class="msgBox">{{detailForm.level}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">来源IP</div>
-      <div class="msgBox">{{detailForm.source}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">调用时长</div>
-      <div class="msgBox">{{detailForm.updateTime}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">日志信息</div>
-      <div class="msgBox">{{detailForm.msg}}</div>
-    </li>
-  </ul>
-  </el-dialog>
+      title="提示"
+      :visible.sync="dialogDetailsVisible"
+      width="50%"
+      style="text-align:left"
+    >
+      <ul class="detailBox">
+        <li>
+          <div class="bg_cyan">日志 ID</div>
+          <div class="msgBox">{{detailForm.logID}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">租户名称</div>
+          <div class="msgBox">{{detailForm.tenantName}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">日志等级</div>
+          <div class="msgBox">{{detailForm.level}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">来源IP</div>
+          <div class="msgBox">{{detailForm.source}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">调用时长</div>
+          <div class="msgBox">{{detailForm.updateTime}}</div>
+        </li>
+        <li style="border-bottom: 1px solid #000;"> 
+          <div class="bg_cyan" style=" height:80px; line-height:80px;">日志信息</div>
+          <div class="msgBox" style=" height:80px; line-height:80px;">{{detailForm.msg}}</div>
+        </li>
+      </ul>
+    </el-dialog>
   </div>
 </template> 
 
@@ -118,7 +119,8 @@ export default {
   data() {
     return {
       currentPage: 1, //初始页
-      pagesize: 6, //每页的数据
+      pagesize: 6, //每页的数据,
+      total:0,
       pickerOptions: {
         shortcuts: [
           {
@@ -153,9 +155,9 @@ export default {
         user: "",
         name: "",
         region: "",
-        level:''
+        level: ""
       },
-      detailForm:{},
+      detailForm: {},
       addForm: {
         name: "",
         sort: 99
@@ -169,7 +171,7 @@ export default {
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
-      dialogDetailsVisible:false,
+      dialogDetailsVisible: false,
       options: [
         {
           value: "选项1",
@@ -231,61 +233,62 @@ export default {
         //   logType:'',  //日志类型
         //   level:"",  //日志等级
         //              //租户名 ????
-        //   source: "http://192.168.0.1:8080",  //来源IP  
+        //   source: "http://192.168.0.1:8080",  //来源IP
         //   responseTime: 500 , //调用时间
-        //   msg: "日志正常",    //日志内容   
+        //   msg: "日志正常",    //日志内容
         // }
       ]
     };
   },
 
-    methods: {
-      dateTransfer(date){
-    var y = date.getFullYear();
-    var m = date.getMonth() + 1;
-    m = m < 10 ? ('0' + m) : m;
-    var d = date.getDate();
-    d = d < 10 ? ('0' + d) : d;
-    var h = date.getHours();
-    var minute = date.getMinutes();
-    minute = minute < 10 ? ('0' + minute) : minute;
-    return y + '-' + m + '-' + d+' '+'00:00:00';
-      },
-      onSubmit() {
+  methods: {
+    dateTransfer(date) {
+      var y = date.getFullYear();
+      var m = date.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      var d = date.getDate();
+      d = d < 10 ? "0" + d : d;
+      var h = date.getHours();
+      var minute = date.getMinutes();
+      minute = minute < 10 ? "0" + minute : minute;
+      return y + "-" + m + "-" + d + " " + "00:00:00";
+    },
+    onSubmit() {
+      if (!(this.formInline.level || this.formInline.name || this.value2)) {
+        return;
+      }
+      var formData = {};
+      // this.$data
 
-          if( !(this.formInline.level || this.formInline.name || this.value2) ){return};
-        var formData={};
-        // this.$data  
-      
-        if(this.formInline.level){
-          formData.level=this.formInline.level
-        }
-        if(this.formInline.name){
-          formData.source=this.formInline.name
-        }
-        console.log(this.value2,'this.value2')
+      if (this.formInline.level) {
+        formData.level = this.formInline.level;
+      }
+      if (this.formInline.name) {
+        formData.source = this.formInline.name;
+      }
+      console.log(this.value2, "this.value2");
 
-        if(this.value2!=""&&this.value2!=undefined){
-          formData.startTime=this.dateTransfer(this.value2[0])
-          formData.endTime=this.dateTransfer(this.value2[1])
-        }
+      if (this.value2 != "" && this.value2 != undefined) {
+        formData.startTime = this.dateTransfer(this.value2[0]);
+        formData.endTime = this.dateTransfer(this.value2[1]);
+      }
 
-        this.$axios.post('/oms-basic/abilityLog!selectLog.json',formData).then(res =>{
-          this.tableData=res.data.data
-        }).catch(err =>{
-
+      this.$axios
+        .post("/oms-basic/abilityLog!selectLog.json", formData)
+        .then(res => {
+          this.tableData = res.data.data;
         })
-        //
+        .catch(err => {});
+      //
+    },
+    viewdetail(index, row) {
+      var that = this
+      console.log(index, "index");
+      that.dialogDetailsVisible = true;
+      that.detailForm = row;
+    },
 
-      },
-      viewdetail(index,row) {
-        console.log(index,'index')
-        this.dialogDetailsVisible=true;
-        this.detailForm=row;        
-      },
-
-
-      //--------------------
+    //--------------------
     getEcharts() {
       var dataAxis = [
         "点",
@@ -416,17 +419,7 @@ export default {
         ]
       });
       var zoomSize = 6;
-      myChart.on("click", function(params) {
-        console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
-        myChart.dispatchAction({
-          type: "dataZoom",
-          startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
-          endValue:
-            dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
-        });
-      });
     },
-
 
     //////
     currentChangePage(list) {
@@ -470,26 +463,24 @@ export default {
         }
       });
     },
-    getJournal(){
-this.$axios
-      .post("/oms-basic/abilityLog!selectLog.json", {
-      })
-      .then( res => {
-        console.log(res.data.data,'res.data.data')
-        this.tableData = this.tableData.concat(res.data.data);
-        // console.log(this.tableData,"this.tableData")
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    getJournal() {
+      this.$axios
+        .post("/oms-basic/abilityLog!selectLog.json", {})
+        .then(res => {
+          console.log(res.data.data, "res.data.data");
+          this.tableData = this.tableData.concat(res.data.data);
+          // console.log(this.tableData,"this.tableData")
+          this.total = res.data.count
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     }
   },
 
-
   mounted() {
-    // this.getEcharts();
+    this.getEcharts();
     this.getJournal();
-    
   }
 };
 </script>
@@ -519,6 +510,11 @@ this.$axios
     bottom: 5px;
   }
 }
+/deep/.el-dialog__title{
+  display: inline-block;
+  width:100%;
+  text-align: center;
+}
 .right {
   margin-right: 24px;
 }
@@ -538,32 +534,29 @@ this.$axios
   font-weight: bold;
   border-radius: 50%;
 }
-.detailBox{
-  li{
-    border-top:2px solid red;
-        border-left: 2px solid red;
+.detailBox {
+  li {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    .bg_cyan{
-      line-height:40px;
+    .bg_cyan {
+      line-height: 40px;
       background-color: #f9fbfd;
       width: 100px;
-      font:14px/40px "";
+      font: 14px/40px "";
       text-align: center;
-      border-bottom:2px solid red;
-      border-right:2px solid red;
+    
+      border-right: 1px solid #000;
     }
-    .msgBox{
-      flex:1;
-      line-height:40px;
-      text-indent:30px !important;
-      border-bottom:2px solid red;
-      border-right:2px solid red;
-
+    .msgBox {
+      flex: 1;
+      line-height: 40px;
+      text-indent: 30px !important;
+      
+      border-right: 1px solid #000;
     }
-
   }
 }
-
 </style>
