@@ -510,6 +510,20 @@ export default {
     };
   },
   methods: {
+    //调取获取主机信息列表接口
+    getmessage() {
+      this.$axios.post('/oms-basic/hardWareInfo!list.json',{
+      }).then(res => {
+        console.log(res,'res')
+        console.log(res.data,'res.data')
+        this.tableData = [].concat(res.data.list);
+        console.log(this.tableData,'this.tableData')
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+
+    //------------------------------------
     getEchartss() {
       var dataAxis = [
         "点",
@@ -734,10 +748,12 @@ export default {
       this.editForm.sort = val.sort;
     }
 
-    //////
   },
   mounted() {
-    this.getEchartss();
+
+    // this.getEchartss();
+    this.getmessage();
+
   }
 };
 </script>

@@ -46,7 +46,7 @@
       <template>
         <!-- v-for="(item, index) in tableLabel" -->
         <el-table-column show-overflow-tooltip prop="tenantID" label="租户ID"></el-table-column>
-        <el-table-column show-overflow-tooltip prop="tenantName" label="住户名称"></el-table-column>
+        <el-table-column show-overflow-tooltip prop="tenantName" label="租户名称"></el-table-column>
         <el-table-column show-overflow-tooltip prop="code" label="授权码"></el-table-column>
         <el-table-column show-overflow-tooltip prop="abilityIDs" label="授权能力识别码"></el-table-column>
         <el-table-column show-overflow-tooltip prop="abilityNames" label="授权能力">
@@ -293,7 +293,6 @@ export default {
     },
 
     handleSubmit() {
-      console.log("0000000000");
       console.log(this.$data.form.name, this.$data.form.region, "=========");
     },
     //点击删除是触发函数

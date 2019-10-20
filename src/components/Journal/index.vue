@@ -3,29 +3,33 @@
     <div class="titleQ">日志列表</div>
     <div class="search">
       <!-- form表单 //form表单里面包含2个select/2个form-item/1个date-picker/-->
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form :inline="true" :model="formData" class="demo-form-inline">
         <!-- 租户名称 -->
         <span class="demonstration">租户名称</span>
-        <el-input v-model="values"  placeholder="租户名称" class="right">
-        </el-input>
+        <el-select v-model="formData.tenantName"  placeholder="租户名称" class="right">
+          <el-option
+            v-for="item in tenantNameOptions"
+            :key="item.tenantID"
+            :value="item.tenantName"
+          ></el-option>
+        </el-select>
         <!-- 日志等级 -->
         <span class="demonstration">日志等级</span>
-        <el-select v-model="formInline.level" filterable placeholder="日志等级" class="right">
+        <el-select v-model="formData.level" filterable placeholder="日志等级" class="right">
           <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            v-for="item in journalLevel"
+            :key="item.level"
+            :value="item.level"
           ></el-option>
         </el-select>
         <!-- 来源IP -->
         <el-form-item label="来源IP" class="right">
-          <el-input v-model="formInline.name" placeholder="来源IP"></el-input>
+          <el-input v-model="formData.IP" placeholder="来源IP"></el-input>
         </el-form-item>
         <!-- 时间选择 -->
         <span class="demonstration">时间选择</span>
         <el-date-picker
-          v-model="value2"
+          v-model="formData.selectTime"
           type="daterange"
           align="right"
           class="right"
@@ -38,19 +42,21 @@
         <!-- 搜索 导出当前按钮 -->
         <el-form-item>
           <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
-          <el-button type="primary" class="right">导出当前</el-button>
+          <el-button type="primary" class="right" @click="exportCurrent">导出当前</el-button>
         </el-form-item>
       </el-form>
     </div>
-    <div id="mainl" style="width:100%;height:200px;"></div>
+    <div ref="barCharts" style="width:100%;height:200px;"></div>
     <div id="Detailedy">
       <i class="el-icon-pie-chart" id="bd"></i> 列表明细
     </div>
     <!-- table布局 -->
     <el-table
-      :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-      style="width: 100%;"
-      class="tabP"
+      :data="tableData"
+      element-loading-text="拼命加载中"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.8)"
+      v-loading="loading"
     >
       <el-table-column prop="logID" label="日志ID" width="180"></el-table-column>
       <el-table-column prop="tenantName" label="租户名" width="180"></el-table-column>
@@ -68,16 +74,14 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="block">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="currentPage1"
-        :page-size="100"
-        layout="total, prev, pager, next"
-        :total="1000"
-      ></el-pagination>
-    </div>
+    <el-pagination
+      style='text-align:center;'
+      @current-change="handleCurrentChange"
+      :current-page.sync="pagination.start"
+      :page-size="pagination.pageSize"
+      layout="total, prev, pager, next"
+      :total="pagination.total"
+    ></el-pagination>
     <el-dialog
   title="提示"
   :visible.sync="dialogDetailsVisible"
@@ -117,8 +121,6 @@ import echarts from "echarts";
 export default {
   data() {
     return {
-      currentPage: 1, //初始页
-      pagesize: 6, //每页的数据
       pickerOptions: {
         shortcuts: [
           {
@@ -147,14 +149,17 @@ export default {
           }
         ]
       },
-      value1: "",
-      value2: "",
-      formInline: {
-        user: "",
-        name: "",
-        region: "",
-        level:''
-      },
+      formData: {
+        tenantName: "",
+        level:'',
+        IP:'',
+        selectTime: []
+      }, // 搜索表单
+      pagination: {
+        start: 1,
+        pageSize: 6,
+        total: 0
+      }, // 分页配置
       detailForm:{},
       addForm: {
         name: "",
@@ -170,53 +175,14 @@ export default {
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
       dialogDetailsVisible:false,
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
-      optionss: [
-        {
-          values: "选项1",
-          labels: "黄金糕"
-        },
-        {
-          values: "选项2",
-          labels: "双皮奶"
-        },
-        {
-          values: "选项3",
-          labels: "蚵仔煎"
-        },
-        {
-          values: "选项4",
-          labels: "龙须面"
-        },
-        {
-          values: "选项5",
-          labels: "北京烤鸭"
-        }
-      ],
-      values: "",
-
+      journalLevel: [
+        {level:'INFO'},{level:'WARN'}
+      ], // 日志等级死数据
+      tenantNameOptions: [
+        {tenantID: 1,tenantName: '移动'},
+        {tenantID: 2, tenantName: '联通'},
+        {tenantID: 3,tenantName: '电信'}
+      ], // 租户名死数据
       rules: {
         name: [
           { required: true, message: "请输入名称" },
@@ -235,200 +201,120 @@ export default {
         //   responseTime: 500 , //调用时间
         //   msg: "日志正常",    //日志内容   
         // }
-      ]
+      ],
+      loading: true,
+      barChartOptions: {
+        xAxis: [],
+        series: [
+          [],
+          [],
+          []
+        ]
+      }
     };
   },
-
-    methods: {
-      dateTransfer(date){
-    var y = date.getFullYear();
-    var m = date.getMonth() + 1;
-    m = m < 10 ? ('0' + m) : m;
-    var d = date.getDate();
-    d = d < 10 ? ('0' + d) : d;
-    var h = date.getHours();
-    var minute = date.getMinutes();
-    minute = minute < 10 ? ('0' + minute) : minute;
-    return y + '-' + m + '-' + d+' '+'00:00:00';
-      },
-      onSubmit() {
-
-          if( !(this.formInline.level || this.formInline.name || this.value2) ){return};
-        var formData={};
-        // this.$data  
-      
-        if(this.formInline.level){
-          formData.level=this.formInline.level
-        }
-        if(this.formInline.name){
-          formData.source=this.formInline.name
-        }
-        console.log(this.value2,'this.value2')
-
-        if(this.value2!=""&&this.value2!=undefined){
-          formData.startTime=this.dateTransfer(this.value2[0])
-          formData.endTime=this.dateTransfer(this.value2[1])
-        }
-
-        this.$axios.post('/oms-basic/abilityLog!selectLog.json',formData).then(res =>{
-          this.tableData=res.data.data
-        }).catch(err =>{
-
-        })
-        //
-
-      },
-      viewdetail(index,row) {
-        console.log(index,'index')
-        this.dialogDetailsVisible=true;
-        this.detailForm=row;        
-      },
-
-
-      //--------------------
-    getEcharts() {
-      var dataAxis = [
-        "点",
-        "击",
-        "柱",
-        "子",
-        "或",
-        "者",
-        "两",
-        "指",
-        "在",
-        "触",
-        "屏",
-        "上",
-        "滑",
-        "动",
-        "能",
-        "够",
-        "自",
-        "动",
-        "缩",
-        "放"
-      ];
-      var data = [
-        220,
-        182,
-        191,
-        234,
-        290,
-        330,
-        310,
-        123,
-        442,
-        321,
-        90,
-        149,
-        210,
-        122,
-        133,
-        334,
-        198,
-        123,
-        125,
-        220
-      ];
-      var yMax = 500;
-      var dataShadow = [];
-
-      for (var i = 0; i < data.length; i++) {
-        dataShadow.push(yMax);
-      }
-      echarts.init(document.getElementById("mainl")).setOption({
-        title: {},
+  mounted() {
+    // this.queryTenantName({});  //调取获取租户名称接口
+    this.queryLogCallOverview({});  //请求日志调用概况接口
+    this.getJournal({start: this.pagination.start,pageSize:this.pagination.pageSize});  // 日志搜索 日志明细接口
+  },
+  methods: {
+    // 生成调用概况柱状图
+    generatorBarChart(){
+      let app = echarts.init(this.$refs.barCharts); // 初始化echarts实例
+      let option = {
+        title: {
+          text: '调用概况'
+        },
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+          },
+        },
         grid: {
-          x: 25,
-          y: 45,
-          x2: 5,
-          y2: 20,
-          borderWidth: 1
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
         },
-
-        xAxis: {
-          data: dataAxis,
-          axisLabel: {
-            inside: true,
-            textStyle: {
-              color: "#fff"
-            }
-          },
-          axisTick: {
-            show: false
-          },
-          axisLine: {
-            show: false
-          },
-          z: 10
-        },
-        yAxis: {
-          axisLine: {
-            show: false
-          },
-          axisTick: {
-            show: false
-          },
-          axisLabel: {
-            textStyle: {
-              color: "#999"
-            }
-          }
-        },
-        dataZoom: [
+        xAxis : [
           {
-            type: "inside"
+            type : 'category',
+            data : this.barChartOptions.xAxis,
+            axisTick: {
+              alignWithLabel: true
+            }
           }
         ],
-        series: [
+        yAxis : [
           {
-            // For shadow
-            type: "bar",
-            itemStyle: {
-              normal: { color: "rgba(0,0,0,0.05)" }
-            },
-            barGap: "-100%",
-            barCategoryGap: "40%",
-            data: dataShadow,
-            animation: false
+            type : 'value'
+          }
+        ],
+        series : [
+          {
+            name:'0点~8点',
+            type:'bar',
+            barWidth: 30,
+            data: this.barChartOptions.series[0],
+            color: ['#3398DB'],
           },
           {
-            type: "bar",
-            itemStyle: {
-              normal: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#83bff6" },
-                  { offset: 0.5, color: "#188df0" },
-                  { offset: 1, color: "#188df0" }
-                ])
-              },
-              emphasis: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#2378f7" },
-                  { offset: 0.7, color: "#2378f7" },
-                  { offset: 1, color: "#83bff6" }
-                ])
-              }
-            },
-            data: data
-          }
+            name:'8点~16点',
+            type:'bar',
+            barWidth: 30,
+            data:this.barChartOptions.series[1],
+            color: ['#3398DB'],
+          },
+          {
+            name:'16点~24点',
+            type:'bar',
+            barWidth: 30,
+            data:this.barChartOptions.series[2],
+            color: ['#3398DB'],
+          },
         ]
-      });
-      var zoomSize = 6;
-      myChart.on("click", function(params) {
-        console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
-        myChart.dispatchAction({
-          type: "dataZoom",
-          startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
-          endValue:
-            dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
-        });
-      });
+      };
+      app.setOption(option); // 使用配置项显示柱状图
     },
+    dateTransfer(date){
+      var y = date.getFullYear();
+      var m = date.getMonth() + 1;
+      m = m < 10 ? ('0' + m) : m;
+      var d = date.getDate();
+      d = d < 10 ? ('0' + d) : d;
+      var h = date.getHours();
+      var minute = date.getMinutes();
+      minute = minute < 10 ? ('0' + minute) : minute;
+      return y + '-' + m + '-' + d+' '+'00:00:00';
+    },
+    onSubmit() {
+      let {tenantName,level,IP,selectTime} = this.formData;
+      if(!(tenantName || level || IP || selectTime.length))return;
+      let formData = {};
+      tenantName && (formData.tenantName = tenantName);
+      level && (formData.level = level);
+      IP && (formData.source = IP);
+      selectTime.length && (
+        formData.startTime = this.dateTransfer(selectTime[0]),
+        formData.endTime = this.dateTransfer(selectTime[1])
+      );
+      this.pagination = {
+        start:1,
+        pageSize: 6,
+        total: 0
+      };
+      Object.keys(this.pagination).forEach(item=>formData[item]=this.pagination[item]);
+      // console.log("formdata",formData)
 
-
-    //////
+      this.getJournal(formData);
+    },
+    viewdetail(index,row) {
+      // console.log(index,'ndex')
+      this.dialogDetailsVisible=true;
+      this.detailForm=row;        
+    },
     currentChangePage(list) {
       let from = (this.currentPage - 1) * this.pageSize;
       let to = this.currentPage * this.pageSize;
@@ -440,56 +326,146 @@ export default {
       }
     },
     // 初始页currentPage、初始每页数据数pagesize和数据data
-    handleSizeChange: function(size) {
-      this.pagesize = size;
-      console.log(this.pagesize); //每页下拉显示数据
-    },
+    // handleSizeChange: function(size) {
+    //   this.pagination.pageSize = size;
+    //   // console.log(this.pagesize); //每页下拉显示数据
+    // },
     handleCurrentChange: function(currentPage) {
-      this.currentPage = currentPage;
-      // console.log(this.currentPage)  //点击第几页
+      // this.pagination.start = currentPage;
+      this.getJournal({start:currentPage,pageSize:this.pagination.pageSize,...this.formData});
+      // console.log(this.pagination.start)  //点击第几页
     },
     deleteRow1(index) {
       this.tableData.forEach((item, index) => {});
-
       this.dialogEditgsVisible1 = false;
     },
-
     editgsForm(val) {
       this.$router.push("/LogDetails");
     },
     saveEditForm(aaa) {
       this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
+        // console.log(this.$refs[aaa]);
         if (valid) {
           // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
           //   alert('更新成功');
           this.dialogEditgsVisible = false;
           this.init();
-          console.log(valid);
+          // console.log(valid);
           // })
         }
       });
     },
-    getJournal(){
-this.$axios
-      .post("/oms-basic/abilityLog!selectLog.json", {
-      })
-      .then( res => {
-        console.log(res.data.data,'res.data.data')
-        this.tableData = this.tableData.concat(res.data.data);
-        // console.log(this.tableData,"this.tableData")
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
-    }
-  },
+    // 列表明细接口 table表格
+    getJournal(obj){
+      this.loading = true;
+      this.$axios.post("/oms-basic/abilityLog!selectLog.json", this.$qs.stringify(obj))
+        .then( res => {
+          // console.log("表格数据",res.data)
+          if(res.data.code === '10000'){
+            this.pagination.total = res.data.count;
+            this.tableData = res.data.data;
+            this.loading = false;
+            // this.resetForm();
+          }
+        }).catch(err=>console.log('queryJouralList_error',err));
+    },
+    // 调取获取租户名称接口
+    queryTenantName(obj){
+      this.$axios.post('/oms-basic/tenant!selectTenantList.json',this.$qs.stringify(obj))
+      .then(res=>{
+        if(res.data.code === '10000'){
+          // console.log("res",res.data)
+          // this.tenantOptions = [...res.data.data];
+          this.tenantNameOptions = res.data.data;
+        }
+      }).catch(err=>console.log("tenantName_error",err))
+    },
+    // 获取日志等级
+    queryJournalLevel(obj){
+      this.$axios.post('',this.$qs.stringify(obj))
+      .then(res=>{
+        if(res.data.code === '100000'){
+          console.log("level",res.data.data)
+        }
+      }).catch(err=>console.log("journalLevel_error",err))
+    },
+    // 表单重置函数
+    resetForm() {
+      this.formData = {
+        tenantName: "",
+        level:'',
+        IP:'',
+        selectTime: []
+      };
+    },
+    // 导出接口
+    exportCurrent(){
+      window.open('/oms-basic/depository/export/日志信息表(2019-10-20-68a6).xls');
+    },
+    // 请求日志调用概况接口
+    queryLogCallOverview(obj){
+      this.$axios.post('/oms-basic/abilityLog!selectLogOverview.json',this.$qs.stringify(obj))
+      .then(res=>{
+        if(res.data.code === '10000'){
+          console.log("logCallOverview",res.data.List)
+          res.data.List = [
+            {
+              TimeDay: "2019-10-18",
+              TimeHourStart: 16,
+              count: 21
+            },
+           {
+              TimeDay: "2019-10-19",
+              TimeHourStart: 0,
+              count: 21
+            },
+            {
+              TimeDay: "2019-10-18",
+              TimeHourStart: 8,
+              count: 21
+            },
+           {
+              TimeDay: "2019-10-19",
+              TimeHourStart: 16,
+              count: 10
+            },
+            {
+              TimeDay: "2019-10-18",
+              TimeHourStart: 0,
+              count: 10
+            },
+           {
+              TimeDay: "2019-10-19",
+              TimeHourStart: 8,
+              count: 10
+            }
+          ];
+          let _filter = (code,count)=>{
+            switch(code){
+              case 0: series[0].push(count);break;
+              case 8: series[1].push(count);break;
+              case 16: series[2].push(count);break;
+            }
+          };
+          let xAxis = [],
+            series = [[],[],[]];
+          res.data.List.forEach((item,index)=>{
+            if(index === 0){
+              xAxis.push(item.TimeDay);
+            }else{
+              if(xAxis.indexOf(item.TimeDay) === -1){
+                xAxis.push(item.TimeDay);                
+              }
+            };
+            _filter(item.TimeHourStart,item.count);
+          });
+          // console.log("调用概况",xAxis,series)
+          this.barChartOptions = {xAxis,series};
+          this.$nextTick(()=>this.generatorBarChart());
 
-
-  mounted() {
-    // this.getEcharts();
-    this.getJournal();
-    
+        }
+      }).catch(err=>console.log('logCallOverview_error',err));
+    },
   }
 };
 </script>
@@ -499,7 +475,6 @@ this.$axios
 .home {
   height: 870px;
   background: #fff;
-  overflow: hidden;
   position: relative;
   .titleQ {
     width: 100%;
@@ -512,11 +487,6 @@ this.$axios
   }
   .search {
     padding: 12px 0 0 12px;
-  }
-  .block {
-    position: absolute;
-    left: 30%;
-    bottom: 5px;
   }
 }
 .right {
@@ -560,7 +530,6 @@ this.$axios
       text-indent:30px !important;
       border-bottom:2px solid red;
       border-right:2px solid red;
-
     }
 
   }
