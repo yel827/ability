@@ -83,36 +83,38 @@
       :total="pagination.total"
     ></el-pagination>
     <el-dialog
-  title="提示"
-  :visible.sync="dialogDetailsVisible"
-  width="50%" style="text-align:center">
-  <ul class="detailBox">
-    <li>
-      <div class="bg_cyan">日志 ID</div>  
-      <div class="msgBox">{{detailForm.logID}}</div>
-    </li>
-     <li> 
-      <div class="bg_cyan">租户名称</div>
-      <div class="msgBox">{{detailForm.tenantName}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">日志等级</div>
-      <div class="msgBox">{{detailForm.level}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">来源IP</div>
-      <div class="msgBox">{{detailForm.source}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">调用时长</div>
-      <div class="msgBox">{{detailForm.updateTime}}</div>
-    </li>
-    <li>
-      <div class="bg_cyan">日志信息</div>
-      <div class="msgBox">{{detailForm.msg}}</div>
-    </li>
-  </ul>
-  </el-dialog>
+      title="提示"
+      :visible.sync="dialogDetailsVisible"
+      width="50%"
+      style="text-align:left"
+    >
+      <ul class="detailBox">
+        <li>
+          <div class="bg_cyan">日志 ID</div>
+          <div class="msgBox">{{detailForm.logID}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">租户名称</div>
+          <div class="msgBox">{{detailForm.tenantName}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">日志等级</div>
+          <div class="msgBox">{{detailForm.level}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">来源IP</div>
+          <div class="msgBox">{{detailForm.source}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">调用时长</div>
+          <div class="msgBox">{{detailForm.updateTime}}</div>
+        </li>
+        <li style="border-bottom: 1px solid #000;"> 
+          <div class="bg_cyan" style=" height:80px; line-height:80px;">日志信息</div>
+          <div class="msgBox" style=" height:80px; line-height:80px;">{{detailForm.msg}}</div>
+        </li>
+      </ul>
+    </el-dialog>
   </div>
 </template> 
 
@@ -197,9 +199,9 @@ export default {
         //   logType:'',  //日志类型
         //   level:"",  //日志等级
         //              //租户名 ????
-        //   source: "http://192.168.0.1:8080",  //来源IP  
+        //   source: "http://192.168.0.1:8080",  //来源IP
         //   responseTime: 500 , //调用时间
-        //   msg: "日志正常",    //日志内容   
+        //   msg: "日志正常",    //日志内容
         // }
       ],
       loading: true,
@@ -489,6 +491,11 @@ export default {
     padding: 12px 0 0 12px;
   }
 }
+/deep/.el-dialog__title{
+  display: inline-block;
+  width:100%;
+  text-align: center;
+}
 .right {
   margin-right: 24px;
 }
@@ -508,21 +515,21 @@ export default {
   font-weight: bold;
   border-radius: 50%;
 }
-.detailBox{
-  li{
-    border-top:2px solid red;
-        border-left: 2px solid red;
+.detailBox {
+  li {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    .bg_cyan{
-      line-height:40px;
+    .bg_cyan {
+      line-height: 40px;
       background-color: #f9fbfd;
       width: 100px;
-      font:14px/40px "";
+      font: 14px/40px "";
       text-align: center;
-      border-bottom:2px solid red;
-      border-right:2px solid red;
+    
+      border-right: 1px solid #000;
     }
     .msgBox{
       flex:1;
@@ -531,8 +538,6 @@ export default {
       border-bottom:2px solid red;
       border-right:2px solid red;
     }
-
   }
 }
-
 </style>

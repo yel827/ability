@@ -7,9 +7,9 @@
         <el-select v-model="values" filterable placeholder="请选择" class="right">
           <el-option
             v-for="item in optionss"
-            :key="item.values"
-            :label="item.labels"
-            :value="item.values"
+            :key="item.label"
+            :label="item.label"
+            :value="item.label"
           ></el-option>
         </el-select>
 
@@ -17,9 +17,9 @@
         <el-select v-model="value" filterable placeholder="请选择" class="right">
           <el-option
             v-for="item in options"
-            :key="item.value"
+            :key="item.label"
             :label="item.label"
-            :value="item.value"
+            :value="item.label"
           ></el-option>
         </el-select>
 
@@ -40,7 +40,7 @@
         ></el-date-picker>
         <el-form-item>
           <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
-          <el-button type="primary" class="right">导出当前</el-button>
+          <el-button type="primary" @click="dao" class="right">导出当前</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -54,7 +54,9 @@
       </template>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="editgsForm(scope.$index, scope.row)"><i class="icon iconfont icon-chakan" style="font-size:18px; font-weight:bold;"></i></el-button>
+          <el-button type="text" @click="viewdetail(scope.$index, scope.row)">
+            <i class="icon iconfont icon-chakan" style="font-size:18px; font-weight:bold;"></i>
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -62,12 +64,39 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page.sync="currentPage1"
-        :page-size="100"
+        :page-size="10"
         layout="total, prev, pager, next"
         :total="total"
       ></el-pagination>
     </div>
+    <el-dialog title="详情" :visible.sync="dialogDetailsVisible" width="50%" style="text-align:left">
+      <ul class="detailBox">
+        <li>
+          <div class="bg_cyan">日志 ID</div>
+          <div class="msgBox">{{detailForm.logID}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">租户名称</div>
+          <div class="msgBox">{{detailForm.tenantName}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">日志等级</div>
+          <div class="msgBox">{{detailForm.level}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">来源IP</div>
+          <div class="msgBox">{{detailForm.source}}</div>
+        </li>
+        <li>
+          <div class="bg_cyan">调用时长</div>
+          <div class="msgBox">{{detailForm.updateTime}}</div>
+        </li>
+        <li style="border-bottom: 1px solid #000;">
+          <div class="bg_cyan" style=" height:80px; line-height:80px;">日志信息</div>
+          <div class="msgBox" style=" height:80px; line-height:80px;">{{detailForm.msg}}</div>
+        </li>
+      </ul>
+    </el-dialog>
   </div>
 </template>
 
@@ -122,55 +151,37 @@ export default {
       },
       title: "",
       title1: "",
-      total:0,
+      total: 0,
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
+      dialogDetailsVisible: false,
+      detailForm: [],
       options: [
         {
           value: "选项1",
-          label: "黄金糕"
+          label: "INFO"
         },
         {
           value: "选项2",
-          label: "双皮奶"
+          label: "WARN"
+        }
+      ],
+      optionss: [
+        {
+          value: "选项1",
+          label: "移动"
+        },
+        {
+          value: "选项2",
+          label: "电信"
         },
         {
           value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
+          label: "联通"
         }
       ],
       value: "",
-      optionss: [
-        {
-          values: "选项1",
-          labels: "黄金糕"
-        },
-        {
-          values: "选项2",
-          labels: "双皮奶"
-        },
-        {
-          values: "选项3",
-          labels: "蚵仔煎"
-        },
-        {
-          values: "选项4",
-          labels: "龙须面"
-        },
-        {
-          values: "选项5",
-          labels: "北京烤鸭"
-        }
-      ],
       values: "",
 
       rules: {
@@ -180,34 +191,82 @@ export default {
         ],
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
-      tableData: [
-        {
-          id: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀区18 弄"
-        },{
-          id: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普江路 1518 弄"
-        },{
-          id: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀江路 1518 弄"
-        }
-        
-      ],
+      tableData: [],
       tableLabel: [
-        { label: "日志ID", prop: "id" },
-        { label: "租户名", prop: "name" },
-        { label: "日志等级", prop: "address" },
-        { label: "来源IP", prop: "address" },
-        { label: "调用时间", prop: "address" },
-        { label: "日志类型", prop: "address" },
-        { label: "日志内容", prop: "address" }
+        { label: "日志ID", prop: "logID" },
+        { label: "租户名", prop: "tenantName" },
+        { label: "日志等级", prop: "level" },
+        { label: "来源IP", prop: "source" },
+        { label: "调用时间", prop: "responseTime" },
+        { label: "日志类型", prop: "logType" },
+        { label: "日志内容", prop: "msg" }
       ]
     };
   },
   methods: {
+    dateTransfer(date) {
+      var y = date.getFullYear();
+      var m = date.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      var d = date.getDate();
+      d = d < 10 ? "0" + d : d;
+      var h = date.getHours();
+      var minute = date.getMinutes();
+      minute = minute < 10 ? "0" + minute : minute;
+      return y + "-" + m + "-" + d + " " + "00:00:00";
+    },
+    onSubmit() {
+      if (
+        !(
+          this.formInline.level ||
+          this.formInline.name ||
+          this.value2 ||
+          this.value ||
+          this.values
+        )
+      ) {
+        return;
+      }
+      var formData = {};
+      // this.$data
+
+      if (this.formInline.level) {
+        formData.level = this.formInline.level;
+      }
+      if (this.formInline.name) {
+        formData.source = this.formInline.name;
+      }
+      console.log(this.value2, "this.value2");
+
+      if (this.value2 != "" && this.value2 != undefined) {
+        formData.startTime = this.dateTransfer(this.value2[0]);
+        formData.endTime = this.dateTransfer(this.value2[1]);
+      }
+      if (this.values) {
+        formData.tenantName = this.values;
+      }
+      if (this.value) {
+        formData.level = this.value;
+      }
+      console.log(formData, "传递的值");
+      this.$axios
+        .post(
+          "/oms-basic/abilityLog!selectLog.json",
+          this.$qs.stringify(formData)
+        )
+        .then(res => {
+          this.tableData = res.data.data;
+
+          console.log(res, "search");
+        })
+        .catch(err => {});
+      //
+    },
+    viewdetail(index, row) {
+      console.log(index, "index");
+      this.dialogDetailsVisible = true;
+      this.detailForm = row;
+    },
     //////
     currentChangePage(list) {
       let from = (this.currentPage - 1) * this.pageSize;
@@ -234,25 +293,32 @@ export default {
       this.dialogEditgsVisible1 = false;
     },
 
-    editgsForm(val) {
-      this.$router.push("/LogDetails");
+    editgsForm(logID) {
+      // console.log(logID,"zunbei")
+      // this.$router.push("/LogDetails",logID);
     },
-    saveEditForm(aaa) {
-      this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
-        if (valid) {
-          // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
-          //   alert('更新成功');
-          this.dialogEditgsVisible = false;
-          this.init();
-          console.log(valid);
-          // })
-        }
-      });
+    getDa() {
+      this.$axios
+        .post("/oms-basic/abilityLog!selectLog.json", {
+          level: "移动"
+        })
+        .then(res => {
+          this.tableData = res.data.data;
+          this.total = res.data.count;
+          console.log(res.data.data);
+          console.log(res, ".data.data");
+        });
+    },
+    dao() {
+      this.$axios
+        .post("/oms-basic/abilityLog!exportLogMessage.json")
+        .then(res => {
+          console.log(res, "导出接口");
+        });
     }
   },
   mounted() {
-    this.getEcharts();
+    this.getDa();
   }
 };
 </script>
@@ -282,6 +348,11 @@ export default {
     bottom: 5px;
   }
 }
+/deep/.el-dialog__title{
+  display: inline-block;
+  width:100%;
+  text-align: center;
+}
 .right {
   margin-right: 24px;
 }
@@ -300,5 +371,28 @@ export default {
   background: #d5e6ff;
   font-weight: bold;
   border-radius: 50%;
+}
+.detailBox {
+  li {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .bg_cyan {
+      line-height: 40px;
+      background-color: #f9fbfd;
+      width: 100px;
+      font: 14px/40px "";
+      text-align: center;
+      border-right: 1px solid #000;
+    }
+    .msgBox {
+      flex: 1;
+      line-height: 40px;
+      text-indent: 30px !important;
+      border-right: 1px solid #000;
+    }
+  }
 }
 </style>

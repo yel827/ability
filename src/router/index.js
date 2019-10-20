@@ -35,7 +35,7 @@ export default new Router({
       component: Journal
     },
     {
-      path: '/LogDetails',
+      path: '/LogDetails:logID',
       name: 'LogDetails',
       component: LogDetails
     },

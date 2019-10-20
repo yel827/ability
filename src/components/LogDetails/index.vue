@@ -29,12 +29,25 @@ export default {
   methods: {
   
 
-    //////
+    getDa() {
+      var vaiod = {vaiod:this.$route.params.logID}
+      // this.$axios
+      //   .post("/oms-basic/abilityLog!selectLog.json", {
+      //     level:'移动'
+      //   })
+      //   .then(res => {
+      //     this.tableData = res.data.data;
+      //     this.total = res.data.count;
+      //     console.log(res.data.data);
+      //     console.log(res,'.data.data');
+      //   });
+     console.log(vaiod,'params')
+    },
   
     
   },
   mounted() {
-    this.getEcharts();
+    this.getDa()
   }
 };
 </script>
