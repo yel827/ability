@@ -4,8 +4,8 @@
     <!-- 头部结构 -->
     <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label="租户ID">
-          <el-input v-model="tableDataName" placeholder="租户ID"></el-input>
+        <el-form-item label="租户名称">
+          <el-input v-model="tableDataName" placeholder="租户名称"></el-input>
         </el-form-item>
         <el-form-item label="授权码">
           <el-input v-model="tableDataValue" placeholder="授权码"></el-input>
@@ -20,7 +20,7 @@
               <el-input v-model="productName" style="width: 70%;margin: 10px 0 10px 0"></el-input>
             </el-row>
             <el-row>
-              授权能力识别码
+              授权能力
               <el-input v-model="value" style="width: 70%;margin: 10px 0 10px 0"></el-input>
             </el-row>
             <div slot="footer" class="dialog-footer">
@@ -212,21 +212,7 @@ export default {
       flag: false,
       //列表数据
       total: 0,
-      tableData: [
-        // {
-        //   abilityIDs: "",
-        //   abilityNames: "",
-        //   code: "5PF8EWHn9hYd6OxBsV9Gsg==",
-        //   createTime: "2019-10-15 16:21:42",
-        //   tenantID: 8,
-        //   tenantName: "中国联通"
-        // },
-        // {
-        //   id: "2016-05-02",
-        //   name: "王8虎",
-        //   address: "上海市普陀区金沙江路 1515 弄"
-        // }
-      ],
+      tableData: [],
       tableLabel: [
         { label: "租户ID", prop: "tenantID" },
         { label: "租户名称", prop: "tenantName" },
@@ -346,21 +332,12 @@ export default {
     currentPage1() {
       console.log("currentPage1");
     },
-    // addTenant() {
-    //   this.dialogTableVisible = true;
-    //   this.dialogFormVisible = true;
-    // },
-
     //搜索
     doFilter() {
-      // if (this.tableDataName == "" && this.tableDataValue == "") {
-      //   this.$message.warning("查询条件不能为空！");
-      //   return;
-      // }
-      //this_.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
+      var that = this
       this.filtertableData = []; //过滤后的数据
       var IDcode = {
-        tenantID: this.tableDataName,
+        tenantName:this.tableDataName,
         code: this.tableDataValue
       };
       this.$axios
@@ -371,16 +348,8 @@ export default {
         .then(res => {
           console.log(res.data.data);
           var subjectY = res.data.data;
-          // if(subjectY.tenantID === this.tableDataName.value &&
-          //   subjectY.code == this.tableDataValue.value
-          // ){
-          //   this.filtertableData.push(subjectY);
-          // }
           this.tableData = subjectY;
-          this.total = res.data.count;
-
-          console.log(this.filtertableData, "12");
-          console.log(this.tableData, "ssss");
+          that.total = res.data.count;
         })
         .catch(error => {
           console.log(error);
@@ -509,16 +478,12 @@ export default {
     //发送ajax请求获取数据
     //租户列表table接口
     this.$axios
-      .post("/oms-basic/tenant!selectTenantBy.json", {
-        // tenantName: "110",
-        // abilityIDs: "112"
-      })
+      .post("/oms-basic/tenant!selectTenantBy.json")
       .then(res => {
-        // this.tableData = res.data.data;
-        this.tableData = [].concat(res.data.data);
+        this.tableData = res.data.data;
         this.total = res.data.count;
-        // console.log(this.tableData, "this.tableData");
       });
+   
   },
   created() {
     this.getData();

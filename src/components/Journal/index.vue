@@ -5,9 +5,14 @@
       <!-- form表单 //form表单里面包含2个select/2个form-item/1个date-picker/-->
       <el-form :inline="true" :model="formData" class="demo-form-inline">
         <!-- 租户名称 -->
+<<<<<<< HEAD
         <span class="demonstration">租户名称</span> 
         <!-- 下拉框组件一挂载就掉 -->
         <el-select v-model="formData.tenantName"  placeholder="租户名称" class="right">
+=======
+        <span class="demonstration">租户名称</span>
+        <el-select v-model="formData.tenantName" placeholder="租户名称" class="right">
+>>>>>>> 69d813d835af605891403ac93a5d42a4933ede81
           <el-option
             v-for="item in tenantNameOptions"
             :key="item.tenantID"
@@ -17,11 +22,7 @@
         <!-- 日志等级 -->
         <span class="demonstration">日志等级</span>
         <el-select v-model="formData.level" filterable placeholder="日志等级" class="right">
-          <el-option
-            v-for="item in journalLevel"
-            :key="item.level"
-            :value="item.level"
-          ></el-option>
+          <el-option v-for="item in journalLevel" :key="item.level" :value="item.level"></el-option>
         </el-select>
         <!-- 来源IP -->
         <el-form-item label="来源IP" class="right">
@@ -52,9 +53,13 @@
       <i class="el-icon-pie-chart" id="bd"></i> 列表明细
     </div>
     <!-- table布局 -->
+<<<<<<< HEAD
     <el-table
       :data="tableData"
     >
+=======
+    <el-table :data="tableData">
+>>>>>>> 69d813d835af605891403ac93a5d42a4933ede81
       <el-table-column prop="logID" label="日志ID" width="180"></el-table-column>
       <el-table-column prop="tenantName" label="租户名" width="180"></el-table-column>
       <el-table-column prop="level" label="日志等级"></el-table-column>
@@ -72,19 +77,14 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      style='text-align:center;'
+      style="text-align:center;"
       @current-change="handleCurrentChange"
       :current-page.sync="pagination.start"
       :page-size="pagination.pageSize"
       layout="total, prev, pager, next"
       :total="pagination.total"
     ></el-pagination>
-    <el-dialog
-      title="提示"
-      :visible.sync="dialogDetailsVisible"
-      width="50%"
-      style="text-align:left"
-    >
+    <el-dialog title="提示" :visible.sync="dialogDetailsVisible" width="50%" style="text-align:left">
       <ul class="detailBox">
         <li>
           <div class="bg_cyan">日志 ID</div>
@@ -106,7 +106,7 @@
           <div class="bg_cyan">调用时长</div>
           <div class="msgBox">{{detailForm.updateTime}}</div>
         </li>
-        <li style="border-bottom: 1px solid #000;"> 
+        <li style="border-bottom: 1px solid #000;">
           <div class="bg_cyan" style=" height:80px; line-height:80px;">日志信息</div>
           <div class="msgBox" style=" height:80px; line-height:80px;">{{detailForm.msg}}</div>
         </li>
@@ -406,7 +406,19 @@ export default {
     },
     // 导出接口
     exportCurrent(){
+<<<<<<< HEAD
       window.open('/oms-basic/depository/export/'+_url);
+=======
+      this.$axios
+        .post("/oms-basic/abilityLog!exportLogMessage.json")
+        .then(res => {
+          this.goDownload(res.data.address)
+        })
+        
+    },
+    goDownload(_url) {
+      window.location.href="http://192.168.1.203:28084/oms-basic"+_url
+>>>>>>> 69d813d835af605891403ac93a5d42a4933ede81
     },
     // 请求日志调用概况接口
     queryLogCallOverview(obj){
@@ -466,9 +478,9 @@ export default {
     padding: 12px 0 0 12px;
   }
 }
-/deep/.el-dialog__title{
+/deep/.el-dialog__title {
   display: inline-block;
-  width:100%;
+  width: 100%;
   text-align: center;
 }
 .right {
@@ -503,15 +515,15 @@ export default {
       width: 100px;
       font: 14px/40px "";
       text-align: center;
-    
+
       border-right: 1px solid #000;
     }
-    .msgBox{
-      flex:1;
-      line-height:40px;
-      text-indent:30px !important;
-      border-bottom:2px solid red;
-      border-right:2px solid red;
+    .msgBox {
+      flex: 1;
+      line-height: 40px;
+      text-indent: 30px !important;
+      border-bottom: 2px solid red;
+      border-right: 2px solid red;
     }
   }
 }

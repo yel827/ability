@@ -3,23 +3,23 @@
     <div class="titleQ">监控报告</div>
     <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <span class="demonstration">租户名称</span>
+        <span class="demonstration">资源类型</span>
         <el-select v-model="values" filterable placeholder="请选择" class="right">
-          <el-option
-            v-for="item in optionss"
-            :key="item.values"
-            :label="item.labels"
-            :value="item.values"
-          ></el-option>
-        </el-select>
-
-        <span class="demonstration">日志等级</span>
-        <el-select v-model="value" filterable placeholder="请选择" class="right">
           <el-option
             v-for="item in options"
             :key="item.value"
             :label="item.label"
-            :value="item.value"
+            :value="item.label"
+          ></el-option>
+        </el-select>
+
+        <span class="demonstration">资源状态</span>
+        <el-select v-model="value" filterable placeholder="请选择" class="right">
+          <el-option
+            v-for="item in optionss"
+            :key="item.label"
+            :label="item.label"
+            :value="item.label"
           ></el-option>
         </el-select>
         <span class="demonstration">时间选择</span>
@@ -36,7 +36,7 @@
         ></el-date-picker>
         <el-form-item>
           <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
-          <el-button type="primary" class="right">生成报告</el-button>
+          <el-button type="primary" @click="suo" class="right">生成报告</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -45,18 +45,18 @@
       style="width: 100%;"
       class="tabP"
     >
-      <el-table-column prop="date" label="租户ID" width="180"></el-table-column>
-      <el-table-column prop="name" label="租户姓名" width="180"></el-table-column>
-      <el-table-column prop="address" label="授权码"></el-table-column>
-      <el-table-column prop="address" label="授权能力编号"></el-table-column>
-      <el-table-column prop="address" label="授权能力"></el-table-column>
-      <el-table-column prop="address" label="创建时间"></el-table-column>
+      <el-table-column prop="id" label="报告ID" width="180"></el-table-column>
+      <el-table-column prop="typeName" label="资源类型" width="180"></el-table-column>
+      <el-table-column prop="reportStartTime" label="报告开始时间"></el-table-column>
+      <el-table-column prop="reportEndTime" label="报告结束时间"></el-table-column>
+      <el-table-column show-overflow-tooltip prop="fileName" label="报告文件名"></el-table-column>
+      <el-table-column prop="createTime" label="报告创建时间"></el-table-column>
+      <el-table-column prop="status" label="报告状态"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text" @click="open(scope.$index)">
+          <el-button type="text" @click="open(scope.row.fileName)">
             <i class="icon iconfont icon-xiazai" style="font-size:18px; font-weight:bold;"></i>
           </el-button>
-           
         </template>
       </el-table-column>
     </el-table>
@@ -65,9 +65,9 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage1"
-        :page-size="100"
+        :page-size="10"
         layout="total, prev, pager, next"
-        :total="1000"
+        :total="total"
       ></el-pagination>
     </div>
   </div>
@@ -124,54 +124,45 @@ export default {
       },
       title: "",
       title1: "",
+      total: 0,
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
-      options: [
+      dialogDetailsVisible: false,
+      detailForm: [],
+      optionss: [
         {
           value: "选项1",
-          label: "黄金糕"
+          label: ""
+        },
+        {
+          value: "选项1",
+          label: "0"
         },
         {
           value: "选项2",
-          label: "双皮奶"
+          label: "1"
+        }
+      ],
+      options: [
+        {
+          value: "选项1",
+          label: ""
         },
         {
-          value: "选项3",
-          label: "蚵仔煎"
+          value: "选项1",
+          label: "主机"
         },
         {
-          value: "选项4",
-          label: "龙须面"
+          value: "选项2",
+          label: "服务"
         },
         {
-          value: "选项5",
-          label: "北京烤鸭"
+          value: "选项2",
+          label: "组件"
         }
       ],
       value: "",
-      optionss: [
-        {
-          values: "选项1",
-          labels: "黄金糕"
-        },
-        {
-          values: "选项2",
-          labels: "双皮奶"
-        },
-        {
-          values: "选项3",
-          labels: "蚵仔煎"
-        },
-        {
-          values: "选项4",
-          labels: "龙须面"
-        },
-        {
-          values: "选项5",
-          labels: "北京烤鸭"
-        }
-      ],
       values: "",
 
       rules: {
@@ -181,88 +172,32 @@ export default {
         ],
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王3虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王4虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王5虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王6虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王7虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王8虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王10虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
-      ]
+      tableData: [],
+      ta:[]
     };
   },
   methods: {
+    //数据展示
+    getss() {
+      this.$axios.post("/oms-basic/report!list.json").then(res => {
+        console.log(res, "监控报告");
+        this.tableData = res.data.list;
+        this.total = res.data.count;
+        // var arrs = []
+        // for(var i=0; i<this.tableData.typeName.length; i++){
+        //   for(var j=i+1; j<this.tableData.typeName.length; j++){
+        //     if(arrs[i].indexOf(this.tableData.typeName[i])==-1){
+        //       this.arrs.push(this.tableData.typeName[i])
+        //     }
+        //   }
+        // }
+        // this.ta = arrs
+        // console.log(this.ta,'this.ta')
+      });
+    },
+
     //////
-     open(index) {
+    open(index) {
       this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -270,7 +205,13 @@ export default {
         center: true
       })
         .then(() => {
-          
+          var dataL={
+            fileName:index
+          }
+          this.$axios.post('/oms-basic/downloadSystemReportFile.json',this.$qs.stringify(dataL))
+          .then(res=>{
+            console.log(res,"下载")
+          })
           this.$message({
             type: "success",
             message: "下载成功!"
@@ -310,7 +251,7 @@ export default {
     },
 
     editgsForm(val) {
-      this.$router.push("/LogDetails")
+      this.$router.push("/LogDetails");
     },
     saveEditForm(aaa) {
       this.$refs[aaa].validate(valid => {
@@ -324,10 +265,77 @@ export default {
           // })
         }
       });
-    }
+    },
+    dateTransfer(date) {
+      var y = date.getFullYear();
+      var m = date.getMonth() + 1;
+      m = m < 10 ? "0" + m : m;
+      var d = date.getDate();
+      d = d < 10 ? "0" + d : d;
+      var h = date.getHours();
+      var minute = date.getMinutes();
+      minute = minute < 10 ? "0" + minute : minute;
+      return y + "-" + m + "-" + d + " " + "00:00:00";
+    },
+    onSubmit() {
+      if (
+        !(
+          this.formInline.level ||
+          this.formInline.name ||
+          this.value2 ||
+          this.value ||
+          this.values
+        )
+      ) {
+        return;
+      }
+      var formData = {};
+      // this.$data
+
+      if (this.formInline.level) {
+        formData.level = this.formInline.level;
+      }
+      if (this.formInline.name) {
+        formData.source = this.formInline.name;
+      }
+      console.log(this.value2, "this.value2");
+
+      if (this.value2 != "" && this.value2 != undefined) {
+        formData.reportStartTime = this.dateTransfer(this.value2[0]);
+        formData.reportEndTime = this.dateTransfer(this.value2[1]);
+      }
+      if (this.values) {
+        formData.typeName = this.values;
+      }
+      if (this.value) {
+        formData.status = this.value;
+      }
+      console.log(formData, "传递的值");
+      this.$axios
+        .post(
+          "/oms-basic/report!list.json",
+          this.$qs.stringify(formData)
+        )
+        .then(res => {
+          this.tableData = res.data.list;
+          
+          
+          console.log(res, "search");
+        })
+        .catch(err => {});
+      //
+    },
+    viewdetail(index, row) {
+      console.log(index, "index");
+      this.dialogDetailsVisible = true;
+      this.detailForm = row;
+    },
+   
+   
   },
   mounted() {
-    this.getEcharts();
+    this.getss();
+
   }
 };
 </script>

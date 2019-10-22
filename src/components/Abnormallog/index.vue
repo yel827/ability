@@ -3,15 +3,9 @@
     <div class="titleQ">异常日志列表</div>
     <div class="search">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <span class="demonstration">租户名称</span>
-        <el-select v-model="values" filterable placeholder="请选择" class="right">
-          <el-option
-            v-for="item in optionss"
-            :key="item.label"
-            :label="item.label"
-            :value="item.label"
-          ></el-option>
-        </el-select>
+        <el-form-item label="租户名称" class="right">
+          <el-input v-model="formInline.same" placeholder="租户名称"></el-input>
+        </el-form-item>
 
         <span class="demonstration">日志等级</span>
         <el-select v-model="value" filterable placeholder="请选择" class="right">
@@ -139,6 +133,7 @@ export default {
       formInline: {
         user: "",
         name: "",
+        same:"",
         region: ""
       },
       addForm: {
@@ -159,8 +154,17 @@ export default {
       detailForm: [],
       options: [
         {
+<<<<<<< HEAD
           value: "选项1",  //value可以不写
           label: "INFO" //值 
+=======
+          value: "选项1",
+          label: ""
+        },
+        {
+          value: "选项1",
+          label: "INFO"
+>>>>>>> 69d813d835af605891403ac93a5d42a4933ede81
         },
         {
           value: "选项2",
@@ -220,6 +224,7 @@ export default {
         !(
           this.formInline.level ||
           this.formInline.name ||
+          this.formInline.same ||
           this.value2 ||
           this.value ||
           this.values
@@ -234,14 +239,14 @@ export default {
       if (this.formInline.name) {
         formData.source = this.formInline.name;
       }
+      if (this.formInline.same) {
+        formData.tenantName = this.formInline.same;
+      }
       console.log(this.value2, "this.value2");
 
       if (this.value2 != "" && this.value2 != undefined) {
         formData.startTime = this.dateTransfer(this.value2[0]);
         formData.endTime = this.dateTransfer(this.value2[1]);
-      }
-      if (this.values) {
-        formData.tenantName = this.values;
       }
       if (this.value) {
         formData.level = this.value;
@@ -256,6 +261,7 @@ export default {
           this.tableData = res.data.data;
 
           console.log(res, "search");
+          
         })
         .catch(err => {});
       //
@@ -311,10 +317,14 @@ export default {
       this.$axios
         .post("/oms-basic/abilityLog!exportLogMessage.json")
         .then(res => {
-          console.log(res, "导出接口");
+          this.goDownload(res.data.address)
         });
+    },
+    goDownload(_url){
+      window.location.href="http://192.168.1.203:28084/oms-basic"+_url
     }
   },
+  
   mounted() {
     this.getDa();
   }
@@ -346,9 +356,9 @@ export default {
     bottom: 5px;
   }
 }
-/deep/.el-dialog__title{
+/deep/.el-dialog__title {
   display: inline-block;
-  width:100%;
+  width: 100%;
   text-align: center;
 }
 .right {

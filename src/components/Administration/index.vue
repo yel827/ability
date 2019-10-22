@@ -81,7 +81,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page.sync="currentPage1"
-        :page-size="100"
+        :page-size="10"
         layout="total, prev, pager, next"
         :total="total"
       ></el-pagination>
@@ -198,7 +198,7 @@ export default {
       this.editForm = row;
       console.log(this.editForm,"xxxxxxx")
       var arr = [];
-      this.form.abilityId = row.abilityID; //arr赋值给editForm.arrayAbility
+      this.form.TA_Id = row.TA_Id; //arr赋值给editForm.arrayAbility
       this.editForm.arrayAbility = this.editForm.temArr;
       console.log(this.editForm.temArr);
     },
@@ -206,7 +206,7 @@ export default {
     saveEditForm() {
       var that = this;
       var params1 = {
-        abilityID: parseInt(this.form.abilityId),
+        TA_Id: parseInt(this.form.TA_Id),
         loadUrl:this.editForm.loadUrl,
         maxNum:parseInt(this.editForm.maxNum),
       };
@@ -235,6 +235,7 @@ export default {
     },
     //搜索
     doFilter() {
+      var that = this
       this.filtertableData = []; //过滤后的数据
       var IDcode = {
         code: this.tableDataValue
@@ -248,7 +249,7 @@ export default {
           console.log(res.data.data);
           var subjectY = res.data.data;
           this.tableData = subjectY;
-          this.total = res.data.count;
+          that.total = res.data.count;
 
           console.log(this.filtertableData, "12");
           console.log(this.tableData, "ssss");
