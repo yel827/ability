@@ -2,14 +2,43 @@
   <div class="mHome">
     <div class="titleQ">
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="配置管理" name="first">
+        <el-tab-pane label="告警列表" name="first">
           <div class="search">
-            <el-form :inline="true" :model="formInline" class="demo-form-inline">
-              <el-form-item label="主机名称" class="right">
-                <el-input v-model="formInline.name" placeholder="主机名称"></el-input>
+            <el-form :inline="true" :model="formData" class="demo-form-inline">
+              <!-- 告警源 -->
+              <!-- <span class="demonstration">告警源</span> -->
+              <el-form-item label="告警策略" class="right">
+                <el-select></el-select>
               </el-form-item>
+              <!-- 告警类型 -->
+              <!-- <span class="demonstration">告警类型</span> -->
+              <el-form-item label="告警策略" class="right">
+                <el-select></el-select>
+              </el-form-item>
+              <!-- 告警策略 -->
+              <el-form-item label="告警策略" class="right">
+                <el-select></el-select>
+              </el-form-item>
+              <!-- 监控项 -->
+              <el-form-item label="告警策略" class="right">
+                <el-input placeholder="来源IP" style="width:170px;" class="tetMy"></el-input>
+              </el-form-item>
+              <!-- 时间选择 -->
+              <!-- <span class="demonstration">时间选择</span> -->
+              <el-date-picker
+                type="daterange"
+                align="right"
+                class="right MyData"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions"
+              ></el-date-picker>
+              <!-- 搜索 导出当前按钮 -->
               <el-form-item>
                 <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
+                <el-button type="primary" class="right" @click="exportCurrent">发 送</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -18,16 +47,21 @@
             style="width: 100%;"
             class="tabP"
           >
-            <el-table-column prop="date" label="组件ID" width="180"></el-table-column>
-            <el-table-column prop="name" label="组件名称" width="180"></el-table-column>
-            <el-table-column prop="name" label="组件数量"></el-table-column>
-            <el-table-column prop="name" label="正常组件数量"></el-table-column>
-            <el-table-column prop="name" label="告警组件数量"></el-table-column>
-            <el-table-column prop="date" label="更新时间"></el-table-column>
+            <el-table-column type="selection" width="65"></el-table-column>
+            <el-table-column prop="id" label="告警ID" width="180"></el-table-column>
+            <el-table-column prop="source" label="告警项" width="180"></el-table-column>
+            <el-table-column prop="monitorItem" label="监控项"></el-table-column>
+            <el-table-column prop="createTime" label="告警时间"></el-table-column>
+            <el-table-column prop="strategy" label="告警策略"></el-table-column>
+            <el-table-column prop="msg" label="告警信息"></el-table-column>
 
             <el-table-column label="操作">
-              <el-radio v-model="radio" label="1">备选项</el-radio>
-              <el-radio v-model="radio" label="2">备选项</el-radio>
+              <template slot-scope="scope">
+                <el-radio-group v-model="radio">
+                  <el-radio :label="scope.$index">已处理</el-radio>
+                  <el-radio :label="scope.$index+'12'">忽略</el-radio>
+                </el-radio-group>
+              </template>
             </el-table-column>
           </el-table>
           <div class="block">
@@ -37,49 +71,100 @@
               :current-page.sync="currentPage1"
               :page-size="100"
               layout="total, prev, pager, next"
-              :total="1000"
+              :total="total"
             ></el-pagination>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="角色管理" name="second">
+        <el-tab-pane label="告警配置管理" name="second">
           <div class="search">
             <el-form :inline="true" :model="formInline" class="demo-form-inline">
-              <el-form-item label="主机名称" class="right">
-                <el-input v-model="formInline.name" placeholder="主机名称"></el-input>
+              <el-form-item label="联系人姓名" class="right plain_ome">
+                <el-input v-model="tableDataValue" placeholder="联系人姓名"></el-input>
               </el-form-item>
-              <el-form-item label="主机IP" class="right">
-                <el-input v-model="formInline.name" placeholder="主机IP"></el-input>
-              </el-form-item>
-              <span class="demonstration">日志等级</span>
-              <el-select v-model="values" filterable placeholder="请选择" class="right">
-                <el-option
-                  v-for="item in optionss"
-                  :key="item.values"
-                  :label="item.labels"
-                  :value="item.values"
-                ></el-option>
-              </el-select>
               <el-form-item>
-                <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
+                <el-button type="primary" @click="doFilter" class="right">搜索</el-button>
+                <el-button type="primary" plain @click="dialogVisible = true" class="right">创建联系人</el-button>
+                <!-- 0 -->
+                <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+                  <el-row>
+                    租户名称
+                    <el-input v-model="productName" style="width: 70%;margin: 10px 0 10px 0"></el-input>
+                  </el-row>
+                  <el-row>
+                    授权能力
+                    <el-input v-model="value" style="width: 70%;margin: 10px 0 10px 0"></el-input>
+                  </el-row>
+                  <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="addData">确 定</el-button>
+                  </div>
+                </el-dialog>
+                <!-- 0 -->
               </el-form-item>
             </el-form>
           </div>
           <el-table
-            :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+            :data="tableDatas.slice((currentPage-1)*pagesize,currentPage*pagesize)"
             style="width: 100%;"
             class="tabP"
           >
-            <el-table-column prop="date" label="能力ID" width="180"></el-table-column>
-            <el-table-column prop="name" label="能力名称" width="180"></el-table-column>
-            <el-table-column prop="name" label="组能力服务数量"></el-table-column>
-            <el-table-column prop="name" label="正常状态服务数量"></el-table-column>
-            <el-table-column prop="name" label="告警组件数量"></el-table-column>
-            <el-table-column prop="date" label="更新时间"></el-table-column>
-
+            <el-table-column prop="id" label="联系人ID" width="180"></el-table-column>
+            <el-table-column prop="name" label="联系人姓名" width="180"></el-table-column>
+            <el-table-column prop="phone" label="联系人电话"></el-table-column>
+            <el-table-column prop="email" label="联系人邮箱"></el-table-column>
+            <el-table-column prop="msg" label="告警策略"></el-table-column>
+            <el-table-column prop="createTime" label="创建时间"></el-table-column>
+            <el-table-column prop="createTime" label="更新时间"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
+                <!-- 编辑 -->
                 <el-button type="text" @click="editgsForm(scope.$index, scope.row)">
-                <i class="icon iconfont icon-chakan" style="font-size:18px; font-weight:bold;"></i>
+                  <i class="icon iconfont icon-bianji" style="font-size:18px; font-weight:bold;"></i>
+                </el-button>
+                <!-- 编辑弹窗 dialog-->
+                <el-dialog
+                  class="headers"
+                  :title="title"
+                  :visible.sync="dialogEditgsVisible"
+                  width="30%"
+                  center
+                  @close="closeDialogVisible"
+                >
+                  <el-form :model="editForm" :rules="rules" ref="editForm">
+                    <el-form-item label="联系人ID" class="add" :label-width="formLabelWidth">
+                      <el-input readonly v-model="editForm.id" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="联系人姓名" class="add" :label-width="formLabelWidth">
+                      <el-input v-model="editForm.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="联系人电话" class="add" :label-width="formLabelWidth">
+                      <el-input v-model="editForm.phone" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="联系人邮箱" class="add" :label-width="formLabelWidth">
+                      <el-input v-model="editForm.email" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="微信昵称" class="add" :label-width="formLabelWidth">
+                      <el-input v-model="editForm.wechatName" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="告警策略" class="add" :label-width="formLabelWidth">
+                      <el-input v-model="editForm.createTime" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="告警策略" class="add" :label-width="formLabelWidth">
+                      <el-input v-model="editForm.msg" autocomplete="off"></el-input>
+                    </el-form-item>
+                  </el-form>
+
+                  <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogEditgsVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="saveEditForm()">确 定</el-button>
+                  </div>
+                </el-dialog>
+                <!-- 删除 -->
+                <el-button type="text" @click="open(scope.row.id)">
+                  <i
+                    class="icon iconfont icon-shanchu"
+                    style="font-size:18px; color:orange; font-weight:bold;"
+                  ></i>
                 </el-button>
               </template>
             </el-table-column>
@@ -105,7 +190,8 @@ import echarts from "echarts";
 export default {
   data() {
     return {
-      radio: '1',
+      radio: "",
+      total: 0,
       activeName: "first",
       currentPage: 1, //初始页
       pagesize: 10, //每页的数据
@@ -150,6 +236,16 @@ export default {
       },
       value1: "",
       value2: "",
+      form: {
+        name: "",
+        abilityId: [],
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: ""
+      },
       formInline: {
         user: "",
         name: "",
@@ -161,13 +257,17 @@ export default {
       },
       editForm: {
         name: "",
-        sort: 99
+        sort: 99,
+        arrayAbility: [],
+        temArr: []
       },
       title: "",
       title1: "",
       dialogAddgsVisible: false,
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
+      dialogVisible: false,
+      tableDataValue: "",
       options: [
         {
           value: "选项1",
@@ -222,227 +322,66 @@ export default {
         ],
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王3虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王4虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王5虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王6虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王7虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王8虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王10虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
-      ]
+      tableData: [],
+      tableDatas: []
     };
   },
   methods: {
-    getEchartss() {
-      var dataAxis = [
-        "点",
-        "击",
-        "柱",
-        "子",
-        "或",
-        "者",
-        "两",
-        "指",
-        "在",
-        "触",
-        "屏",
-        "上",
-        "滑",
-        "动",
-        "能",
-        "够",
-        "自",
-        "动",
-        "缩",
-        "放"
-      ];
-      var data = [
-        220,
-        182,
-        191,
-        234,
-        290,
-        330,
-        310,
-        123,
-        442,
-        321,
-        90,
-        149,
-        210,
-        122,
-        133,
-        334,
-        198,
-        123,
-        125,
-        220
-      ];
-      var yMax = 500;
-      var dataShadow = [];
-
-      for (var i = 0; i < data.length; i++) {
-        dataShadow.push(yMax);
-      }
-      echarts.init(document.getElementById("mainl")).setOption({
-        title: {},
-        grid: {
-          x: 25,
-          y: 45,
-          x2: 5,
-          y2: 20,
-          borderWidth: 1
-        },
-
-        xAxis: {
-          data: dataAxis,
-          axisLabel: {
-            inside: true,
-            textStyle: {
-              color: "#fff"
-            }
-          },
-          axisTick: {
-            show: false
-          },
-          axisLine: {
-            show: false
-          },
-          z: 10
-        },
-        yAxis: {
-          axisLine: {
-            show: false
-          },
-          axisTick: {
-            show: false
-          },
-          axisLabel: {
-            textStyle: {
-              color: "#999"
-            }
-          }
-        },
-        dataZoom: [
-          {
-            type: "inside"
-          }
-        ],
-        series: [
-          {
-            // For shadow
-            type: "bar",
-            itemStyle: {
-              normal: { color: "rgba(0,0,0,0.05)" }
-            },
-            barGap: "-100%",
-            barCategoryGap: "40%",
-            data: dataShadow,
-            animation: false
-          },
-          {
-            type: "bar",
-            itemStyle: {
-              normal: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#83bff6" },
-                  { offset: 0.5, color: "#188df0" },
-                  { offset: 1, color: "#188df0" }
-                ])
-              },
-              emphasis: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#2378f7" },
-                  { offset: 0.7, color: "#2378f7" },
-                  { offset: 1, color: "#83bff6" }
-                ])
-              }
-            },
-            data: data
-          }
-        ]
-      });
-      var zoomSize = 6;
-      myChart.on("click", function(params) {
-        console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
-        myChart.dispatchAction({
-          type: "dataZoom",
-          startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
-          endValue:
-            dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
-        });
+    //数据展示(告警列表)
+    getdatas() {
+      this.$axios.post("/oms-basic/warnInfoRelate!list.json").then(res => {
+        console.log(res, "告警列表");
+        this.tableData = res.data.list;
+        this.total = res.data.count;
       });
     },
-
+    //数据展示(联系人列表)
+    getData() {
+      this.$axios.post("/oms-basic/emergencyContact!list.json").then(res => {
+        console.log(res.data.list, "联系人列表");
+        this.tableDatas = res.data.list;
+      });
+    },
+    //搜索
+    doFilter() {
+      // if (this.tableDataName == "" && this.tableDataValue == "") {
+      //   this.$message.warning("查询条件不能为空！");
+      //   return;
+      // }
+      //this_.tableData = []; //tableData列表数据 //每次手动将数据置空,因为会出现多次点击搜索情况
+      this.filtertableData = []; //过滤后的数据
+      var IDcode = {
+        name: this.tableDataValue
+      };
+      this.$axios
+        .post(
+          "/oms-basic/emergencyContact!list.json",
+          this.$qs.stringify(IDcode)
+        )
+        .then(res => {
+          console.log(res, "搜索结果");
+          console.log(res.data.list);
+          var subjectY = res.data.list;
+          // if(subjectY.tenantID === this.tableDataName.value &&
+          //   subjectY.code == this.tableDataValue.value
+          // ){
+          //   this.filtertableData.push(subjectY);
+          // }
+          this.tableDatas = subjectY;
+          this.total = res.data.count;
+          console.log(this.tableDatas, "ssss");
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      //页面数据改变重新统计数据数量和当前页
+      this.currentPage = 1;
+      this.totalItems = this.filtertableData.length;
+      //渲染表格,根据值
+      this.currentChangePage(this.filtertableData);
+      //页面初始化数据需要判断是否检索过
+      this.flag = true;
+    },
     //进度条
     customColorMethod(percentage) {
       if (percentage < 30) {
@@ -494,42 +433,163 @@ export default {
       this.dialogEditgsVisible1 = false;
     },
 
-    editgsForm(val) {},
-    saveEditForm(aaa) {
-      this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
-        if (valid) {
-          // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
-          //   alert('更新成功');
-          this.dialogEditgsVisible = false;
-          this.init();
-          console.log(valid);
-          // })
-        }
+    /**
+     *
+     * @param
+     */
+    editgsForm(index, row) {
+      this.dialogEditgsVisible = true;
+      console.log(this.editForm.temArr);
+      row.temArr = this.editForm.temArr;
+      console.log(row, "row");
+
+      this.title = "编辑";
+      this.editForm = row;
+      var arr1 = [],
+        arr2 = [];
+      console.log(row.abilityIDs, "row.abilityIDs"); //111,116,115,114,122,113,112,119 row.abilityIDs
+      //arr1 = row.abilityIDs.split(","); //arr1是什么, row.abilityIDs是什么???
+      console.log(arr1, "arr1"); //["111", "116", "115", "114", "122", "113", "112", "119"]
+      arr2 = row.abilityNames.split(",");
+      console.log(arr2, "arr2");
+      var arr = [];
+      this.form.abilityId = row.abilityIDs; //arr赋值给editForm.arrayAbility
+      this.editForm.arrayAbility = this.editForm.temArr;
+      console.log(this.editForm.temArr);
+    },
+    saveEditForm() {
+      var that = this;
+      var param = new URLSearchParams();
+      param.append("id", this.editForm.id);
+      param.append("name", this.editForm.name);
+      param.append("email", this.editForm.email);
+      param.append("phone", this.editForm.phone);
+      param.append("status", this.editForm.status);
+      param.append("wechatName", this.editForm.wechatName);
+      param.append("msg", this.editForm.msg);
+      console.log(this.form.abilityId);
+      var data = {
+        id: this.editForm.id,
+        name: this.editForm.name,
+        email: this.editForm.email,
+        phone: this.editForm.phone,
+        status: this.editForm.status,
+        wechatName: this.editForm.wechatName,
+        msg: this.editForm.msg
+      };
+      // var header={
+      //   headers:{
+      //     "Content-Type":"application/x-www-form-urlencoded"
+      //   }
+      // }
+      this.$axios
+        .post("/oms-basic/emergencyContact!save.json", data)
+        .then(function(response) {
+          console.log(response, "111111");
+          if (response.data.code == 10000) {
+            that.dialogEditgsVisible = false;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+
+      this.$axios.post("/oms-basic/emergencyContact!list.json").then(res => {
+        console.log(res.data.list, "联系人列表");
+        this.tableDatas = res.data.list;
       });
     },
-    open() {
-      this.$alert(
-        '<div style="width:500px; height:500px; background:red;"></div>',
-        "主机监控详情",
-        {
-          dangerouslyUseHTMLString: true
-        }
-      );
+    //点击删除是触发函数
+    open(index) {
+      this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        center: true
+      })
+        .then(() => {
+          var that = this;
+          console.log(index, "下标");
+          var par = {
+            id: index
+          };
+          console.log(par);
+          that.$axios
+            .post(
+              "/oms-basic/emergencyContact!delete.json",
+              that.$qs.stringify(par)
+            )
+            .then(res => {
+              console.log(res);
+              this.$axios
+                .post("/oms-basic/emergencyContact!list.json")
+                .then(res => {
+                  console.log(res.data.list, "联系人列表");
+                  this.tableDatas = res.data.list;
+                });
+            });
+        })
+        .catch(() => {
+          console.log("11111111");
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
-    //
-    editgsForm(val) {
-      this.dialogEditgsVisible = true;
-      this.title = "主机监控详情";
-      this.editForm.id = val.id;
-      this.editForm.name = val.name;
-      this.editForm.sort = val.sort;
-    }
 
     //////
+    addData() {
+      //显示弹窗
+      var that = this;
+      that.dialogVisible = false;
+      //调取添加接口
+      // let header = {
+      //   headers: {
+      //     "Content-Type": "application/x-www-form-urlencoded"
+      //   }
+      // };
+      //1.
+      var params = new URLSearchParams();
+      params.append("tenantName", that.productName);
+      params.append("abilityIDs", that.value);
+      //2. that.$qs.stringify(params1)
+
+      var params1 = {
+        name: that.productName,
+        email: that.value
+      };
+      that.$axios
+        .post(
+          "/oms-basic/emergencyContact!save.json",
+          that.$qs.stringify(params1)
+        )
+        //成功
+        .then(res => {
+          //返回的数据
+          console.log("res777", res);
+          //自己定义的空数组tableData
+          // this.tableData.splice(0, this.tableData.length)
+          var arrs = { tenantName: that.productName, abilityIDs: that.value };
+          that.tableData.splice(that.tableData.length, 0, arrs);
+          //发送ajax请求获取数据
+
+          this.$axios
+            .post("/oms-basic/emergencyContact!list.json")
+            .then(res => {
+              console.log(res.data.list, "联系人列表");
+              this.tableDatas = res.data.list;
+            });
+        })
+        //失败
+        .catch(error => {
+          console.log(error);
+        });
+    }
   },
   mounted() {
-    this.getEchartss();
+    this.getData();
+    this.getdatas();
   }
 };
 </script>
@@ -563,9 +623,8 @@ export default {
 .search {
   padding: 12px 0 0 12px;
 }
-
-.right {
-  margin-right: 24px;
+.tetMy /deep/ .el-input__inner {
+  width: 170px;
 }
 #Detailedy {
   width: 100%;
@@ -629,6 +688,9 @@ export default {
     background: #fff;
   }
 }
+/deep/.el-input__inner {
+  width: 120px;
+}
 .myCPU {
   display: flex;
   flex-direction: row;
@@ -663,6 +725,31 @@ export default {
   }
   /deep/ .el-dialog__close.el-icon.el-icon-close::before {
     color: #fff;
+  }
+}
+.MyData {
+  width: 350px;
+  /deep/ .el-range-input {
+    width: 150px;
+  }
+}
+.plain_ome {
+  width: 300px;
+  /deep/.el-input__inner {
+    width: 200px;
+  }
+  /deep/ .el-range-input {
+    width: 200px;
+  }
+}
+.add {
+  width: 500px;
+
+  /deep/.el-input__inner {
+    width: 400px;
+  }
+  /deep/ .el-range-input {
+    width: 400px;
   }
 }
 </style>
