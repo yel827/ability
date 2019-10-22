@@ -5,7 +5,8 @@
       <!-- form表单 //form表单里面包含2个select/2个form-item/1个date-picker/-->
       <el-form :inline="true" :model="formData" class="demo-form-inline">
         <!-- 租户名称 -->
-        <span class="demonstration">租户名称</span>
+        <span class="demonstration">租户名称</span> 
+        <!-- 下拉框组件一挂载就掉 -->
         <el-select v-model="formData.tenantName"  placeholder="租户名称" class="right">
           <el-option
             v-for="item in tenantNameOptions"
@@ -39,7 +40,7 @@
           end-placeholder="结束日期"
           :picker-options="pickerOptions"
         ></el-date-picker>
-        <!-- 搜索 导出当前按钮 -->
+        <!-- 搜索/导出当前 按钮 -->
         <el-form-item>
           <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
           <el-button type="primary" class="right" @click="exportCurrent">导出当前</el-button>
@@ -53,10 +54,6 @@
     <!-- table布局 -->
     <el-table
       :data="tableData"
-      element-loading-text="拼命加载中"
-      element-loading-spinner="el-icon-loading"
-      element-loading-background="rgba(0, 0, 0, 0.8)"
-      v-loading="loading"
     >
       <el-table-column prop="logID" label="日志ID" width="180"></el-table-column>
       <el-table-column prop="tenantName" label="租户名" width="180"></el-table-column>
@@ -123,6 +120,7 @@ import echarts from "echarts";
 export default {
   data() {
     return {
+      app:null,
       pickerOptions: {
         shortcuts: [
           {
@@ -151,6 +149,7 @@ export default {
           }
         ]
       },
+      //formData是下拉框的数据
       formData: {
         tenantName: "",
         level:'',
@@ -158,9 +157,9 @@ export default {
         selectTime: []
       }, // 搜索表单
       pagination: {
-        start: 1,
-        pageSize: 6,
-        total: 0
+        start: 1, //从第一页开始
+        pageSize: 6, //每一页展示6条数据
+        total: 0 
       }, // 分页配置
       detailForm:{},
       addForm: {
@@ -181,9 +180,9 @@ export default {
         {level:'INFO'},{level:'WARN'}
       ], // 日志等级死数据
       tenantNameOptions: [
-        {tenantID: 1,tenantName: '移动'},
-        {tenantID: 2, tenantName: '联通'},
-        {tenantID: 3,tenantName: '电信'}
+        // {tenantID: 1,tenantName: '移动'},
+        // {tenantID: 2, tenantName: '联通'},
+        // {tenantID: 3,tenantName: '电信'}
       ], // 租户名死数据
       rules: {
         name: [
@@ -216,14 +215,16 @@ export default {
     };
   },
   mounted() {
-    // this.queryTenantName({});  //调取获取租户名称接口
+    this.app = echarts.init(this.$refs.barCharts);
+    //this.getJournalOverview();
+    this.queryTenantName({});  //调取获取租户名称接口
     this.queryLogCallOverview({});  //请求日志调用概况接口
     this.getJournal({start: this.pagination.start,pageSize:this.pagination.pageSize});  // 日志搜索 日志明细接口
   },
   methods: {
     // 生成调用概况柱状图
     generatorBarChart(){
-      let app = echarts.init(this.$refs.barCharts); // 初始化echarts实例
+       // 初始化echarts实例
       let option = {
         title: {
           text: '调用概况'
@@ -278,7 +279,7 @@ export default {
           },
         ]
       };
-      app.setOption(option); // 使用配置项显示柱状图
+      this.app.setOption(option); // 使用配置项显示柱状图
     },
     dateTransfer(date){
       var y = date.getFullYear();
@@ -291,9 +292,10 @@ export default {
       minute = minute < 10 ? ('0' + minute) : minute;
       return y + '-' + m + '-' + d+' '+'00:00:00';
     },
+    //调用搜索接口
     onSubmit() {
       let {tenantName,level,IP,selectTime} = this.formData;
-      if(!(tenantName || level || IP || selectTime.length))return;
+      // if(!(tenantName || level || IP || selectTime.length))return;
       let formData = {};
       tenantName && (formData.tenantName = tenantName);
       level && (formData.level = level);
@@ -311,6 +313,7 @@ export default {
       // console.log("formdata",formData)
 
       this.getJournal(formData);
+      this.queryLogCallOverview(formData)
     },
     viewdetail(index,row) {
       // console.log(index,'ndex')
@@ -370,6 +373,7 @@ export default {
             // this.resetForm();
           }
         }).catch(err=>console.log('queryJouralList_error',err));
+        //this.getJournalOverview();
     },
     // 调取获取租户名称接口
     queryTenantName(obj){
@@ -382,7 +386,7 @@ export default {
         }
       }).catch(err=>console.log("tenantName_error",err))
     },
-    // 获取日志等级
+    // 获取日志等级接口  用的时候叫实参  定义的时候叫形参
     queryJournalLevel(obj){
       this.$axios.post('',this.$qs.stringify(obj))
       .then(res=>{
@@ -402,46 +406,17 @@ export default {
     },
     // 导出接口
     exportCurrent(){
-      window.open('/oms-basic/depository/export/日志信息表(2019-10-20-68a6).xls');
+      window.open('/oms-basic/depository/export/'+_url);
     },
     // 请求日志调用概况接口
     queryLogCallOverview(obj){
       this.$axios.post('/oms-basic/abilityLog!selectLogOverview.json',this.$qs.stringify(obj))
       .then(res=>{
         if(res.data.code === '10000'){
-          console.log("logCallOverview",res.data.List)
-          res.data.List = [
-            {
-              TimeDay: "2019-10-18",
-              TimeHourStart: 16,
-              count: 21
-            },
-           {
-              TimeDay: "2019-10-19",
-              TimeHourStart: 0,
-              count: 21
-            },
-            {
-              TimeDay: "2019-10-18",
-              TimeHourStart: 8,
-              count: 21
-            },
-           {
-              TimeDay: "2019-10-19",
-              TimeHourStart: 16,
-              count: 10
-            },
-            {
-              TimeDay: "2019-10-18",
-              TimeHourStart: 0,
-              count: 10
-            },
-           {
-              TimeDay: "2019-10-19",
-              TimeHourStart: 8,
-              count: 10
-            }
-          ];
+          //console.log("logCallOverview----",res.data.List);
+          //this.barChartOptions.series=res.data.List;
+
+          //还要进行数据排序 对应日期
           let _filter = (code,count)=>{
             switch(code){
               case 0: series[0].push(count);break;
@@ -449,16 +424,16 @@ export default {
               case 16: series[2].push(count);break;
             }
           };
-          let xAxis = [],
-            series = [[],[],[]];
+          let xAxis = [];
+          let  series = [[],[],[]];
           res.data.List.forEach((item,index)=>{
             if(index === 0){
               xAxis.push(item.TimeDay);
             }else{
               if(xAxis.indexOf(item.TimeDay) === -1){
-                xAxis.push(item.TimeDay);                
+                xAxis.push(item.TimeDay);             
               }
-            };
+            };      // 时间区间     时间区间内日志总数
             _filter(item.TimeHourStart,item.count);
           });
           // console.log("调用概况",xAxis,series)

@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/oms-basic': {
-        target: 'http://192.168.1.203',
+        target: 'http://192.168.1.203:28084',
         secure: false,
         changeOrigin: true, // 是否跨域
         // pathRewrite: {

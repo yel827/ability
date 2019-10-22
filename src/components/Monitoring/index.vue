@@ -2,25 +2,17 @@
   <div class="mHome">
     <div class="titleQ">
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="用户管理" name="first">
+        <!-- 选项卡一用户管理布局 -->
+        <el-tab-pane label="主机监控" name="first">
           <div class="search">
             <!-- from表单 -->
             <el-form :inline="true" :model="formInline" class="demo-form-inline">
               <el-form-item label="主机名称" class="right">
-                <el-input v-model="formInline.name" placeholder="主机名称"></el-input>
+                <el-input v-model="formInline.hostName" placeholder="主机名称"></el-input>
               </el-form-item>
               <el-form-item label="主机IP" class="right">
-                <el-input v-model="formInline.name" placeholder="主机IP"></el-input>
+                <el-input v-model="formInline.hostIp" placeholder="主机IP"></el-input>
               </el-form-item>
-              <span class="demonstration">日志等级</span>
-              <el-select v-model="values" filterable placeholder="请选择" class="right">
-                <el-option
-                  v-for="item in optionss"
-                  :key="item.values"
-                  :label="item.labels"
-                  :value="item.values"
-                ></el-option>
-              </el-select>
               <el-form-item>
                 <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
                 <span class="icon_tu">
@@ -46,200 +38,70 @@
             style="width: 100%;"
             class="tabP"
           >
-            <el-table-column prop="date" label="ID" width="180"></el-table-column>
-            <el-table-column prop="name" label="状态" width="180">
-              <i class="el-icon-sunrise-1" style="font-size:20px; margin-right:6px; color:orange;"></i>
+            <el-table-column prop="id" label="ID" width="180"></el-table-column>
+            <el-table-column prop="id" label="状态" width="180">
+              <i class="el-icon-sunrise" style="font-size:20px; margin-right:6px; color:orange;"></i>
             </el-table-column>
-            <el-table-column prop="name" label="主机名称"></el-table-column>
-            <el-table-column prop="name" label="主机IP"></el-table-column>
-            <el-table-column prop="name" label="操作系统"></el-table-column>
+            <el-table-column prop="hostName" label="主机名称"></el-table-column>
+            <el-table-column prop="hostIp" label="主机IP"></el-table-column>
+            <el-table-column prop="operationSystem" label="操作系统"></el-table-column>
             <el-table-column prop="name" label="CPU利用率">
               <el-progress :percentage="percentage" :color="customColors"></el-progress>
             </el-table-column>
             <el-table-column prop="name" label="内存利用率">
               <el-progress :percentage="percentage1" :color="customColor"></el-progress>
             </el-table-column>
-            <el-table-column prop="date" label="更新时间"></el-table-column>
+            <el-table-column prop="createTime" label="更新时间"></el-table-column>
 
             <el-table-column label="操作">
-              <template slot-scope="scope">
-                <el-button type="text" @click="editgsForm(scope.$index, scope.row)">
-                <i class="icon iconfont icon-chakan"  style="font-size:18px; font-weight:bold;"></i>
+              <template slot-scope="scope" ref='tabl'>
+                <el-button type="text" @click="editgsForm(scope.row.hostIp)">
+                  <i class="icon iconfont icon-chakan" style="font-size:18px; font-weight:bold;"></i>
                 </el-button>
-                <el-dialog
-                  class="headers"
-                  :title="title"
-                  :visible.sync="dialogEditgsVisible"
-                  width="50%"
-                  center
-                  @close="closeDialogVisible"
-                >
-                  <div
-                    style="width:100%;
-                         height:600px;
-                         "
-                  >
-                    <div class="information">
-                      <div>
-                        <p>服务器信息</p>
-                        <p>
-                          <span>主机名称:主机名称abc</span>
-                          <span>主机IP:111.111.111.11</span>
-                          <span>操作系统:CentOs Linux release 7.2.1511 (Core)</span>
-                        </p>
-                        <p>
-                          <span>CPU 18核</span>
-                          <span style="margin-left:100px;">内存：32G</span>
-                        </p>
-                      </div>
-                      <div class="myCPU">
-                        <div>
-                          <p>CPU状态监控</p>
-                          <p style="text-align:center;">CPU指表</p>
-                          <ul class="list">
-                            <li>CPU主频·········2.40</li>
-                            <li>CPU个数·········1个</li>
-                            <li>CPU内核·········16个</li>
-                          </ul>
-                          <div class="el-progress-circle" style="height: 126px; width: 126px;">
-                            <svg class="svgTick" viewBox="-50 -50 150 150">
-                              <path
-                                d="
-                                  M 50 50
-                                  m 0 -47
-                                  a 47 47 0 1 1 0 94
-                                  a 47 47 0 1 1 0 -94
-                                  "
-                                stroke="#e5e9f2"
-                                stroke-width="4.8"
-                                fill="none"
-                                class="el-progress-circle__track"
-                                style="stroke-dasharray: 295.31px, 295.31px; stroke-dashoffset: 0px;"
-                              />
-                              <path
-                                d="
-                                  M 50 50
-                                  m 0 -47
-                                  a 47 47 0 1 1 0 94
-                                  a 47 47 0 1 1 0 -94
-                                  "
-                                stroke="#20a0ff"
-                                fill="none"
-                                stroke-linecap="round"
-                                stroke-width="4.8"
-                                class="el-progress-circle__path"
-                                style="stroke-dasharray: 165.373px, 295.31px; stroke-dashoffset: 0px; transition: stroke-dasharray 0.6s ease 0s, stroke 0.6s ease 0s;"
-                              />
-                            </svg>
-                            <p
-                              style="
-                            width:200px;
-                            font-size:14px;
-                            text-align:center;"
-                            >CPU使用率</p>
-                          </div>
-                        </div>
-                        <div>
-                          <div
-                            id="mainl"
-                            style="width:500px; border:1px solid #ccc; margin-top:20px; height:200px;"
-                          ></div>
-                        </div>
-                      </div>
-                      <div class="myCPU">
-                        <div>
-                          <p>内存态监控</p>
-                          <p style="text-align:center;">内存指表</p>
-                          <ul class="list">
-                            <li>内存容量·········32G</li>
-                          </ul>
-                          <div class="el-progress-circle" style="height: 126px; width: 126px;">
-                            <svg class="svgTick" viewBox="-50 -50 150 150">
-                              <path
-                                d="
-                                  M 50 50
-                                  m 0 -47
-                                  a 47 47 0 1 1 0 94
-                                  a 47 47 0 1 1 0 -94
-                                  "
-                                stroke="#e5e9f2"
-                                stroke-width="4.8"
-                                fill="none"
-                                class="el-progress-circle__track"
-                                style="stroke-dasharray: 295.31px, 295.31px; stroke-dashoffset: 0px;"
-                              />
-                              <path
-                                d="
-                                  M 50 50
-                                  m 0 -47
-                                  a 47 47 0 1 1 0 94
-                                  a 47 47 0 1 1 0 -94
-                                  "
-                                stroke="#20a0ff"
-                                fill="none"
-                                stroke-linecap="round"
-                                stroke-width="4.8"
-                                class="el-progress-circle__path"
-                                style="stroke-dasharray: 165.373px, 295.31px; stroke-dashoffset: 0px; transition: stroke-dasharray 0.6s ease 0s, stroke 0.6s ease 0s;"
-                              />
-                            </svg>
-                            <p
-                              style="
-                            width:200px;
-                            font-size:14px;
-                            text-align:center;"
-                            >内存使用率</p>
-                          </div>
-                        </div>
-                        <div>
-                          <div
-                            id="mainl"
-                            style="width:500px; border:1px solid #ccc; margin-top:20px; height:200px;"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </el-dialog>
+                
               </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
-
-        <el-tab-pane label="配置管理" name="second">
+        <!-- 选项卡二配置管理布局 -->
+        <el-tab-pane label="组件监控" name="second">
           <div class="search">
-            <el-form :inline="true" :model="formInline" class="demo-form-inline">
-              <el-form-item label="主机名称" class="right">
-                <el-input v-model="formInline.name" placeholder="主机名称"></el-input>
-              </el-form-item>
-              <el-form-item label="主机IP" class="right">
-                <el-input v-model="formInline.name" placeholder="主机IP"></el-input>
-              </el-form-item>
-              <span class="demonstration">日志等级</span>
-              <el-select v-model="values" filterable placeholder="请选择" class="right">
+            <el-form :inline="true"  class="demo-form-inline">
+              <span class="demonstration">选择组件</span>
+              <el-select v-model="compName" placeholder="请选择" class="right">
+                <el-option
+                  v-for="item in options"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.name"
+                ></el-option>
+              </el-select>
+              <span class="demonstration">组件状态</span>
+              <el-select v-model="compStatus" placeholder="请选择" class="right">
                 <el-option
                   v-for="item in optionss"
-                  :key="item.values"
-                  :label="item.labels"
-                  :value="item.values"
+
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.value"
                 ></el-option>
               </el-select>
               <el-form-item>
-                <el-button type="primary" @click="onSubmit" class="right">搜索</el-button>
+                <el-button type="primary" @click="onSubmit2" class="right">搜索</el-button>
               </el-form-item>
             </el-form>
           </div>
           <el-table
-            :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+            :data="tableData2.slice((currentPage-1)*pagesize,currentPage*pagesize)"
             style="width: 100%;"
             class="tabP"
           >
-            <el-table-column prop="date" label="组件ID" width="180"></el-table-column>
+            <el-table-column prop="id" label="组件ID" width="180"></el-table-column>
             <el-table-column prop="name" label="组件名称" width="180"></el-table-column>
-            <el-table-column prop="name" label="组件数量"></el-table-column>
-            <el-table-column prop="name" label="正常组件数量"></el-table-column>
-            <el-table-column prop="name" label="告警组件数量"></el-table-column>
-            <el-table-column prop="date" label="更新时间"></el-table-column>
+            <el-table-column prop="totalComponents" label="组件数量"></el-table-column>
+            <el-table-column prop="normalTotalComponents" label="正常组件数量"></el-table-column>
+            <el-table-column prop="alarmTotalComponents" label="告警组件数量"></el-table-column>
+            <el-table-column prop="updateTime" label="更新时间"></el-table-column>
 
             <el-table-column label="操作">
               <template slot-scope="scope">
@@ -250,7 +112,9 @@
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="角色管理" name="third">
+        <!-- 选项卡三能力监控布局 -->
+        <el-tab-pane label="能力监控" name="third">
+          <!-- 搜索 form表单 -->
           <div class="search">
             <el-form :inline="true" :model="formInline" class="demo-form-inline">
               <el-form-item label="主机名称" class="right">
@@ -263,9 +127,9 @@
               <el-select v-model="values" filterable placeholder="请选择" class="right">
                 <el-option
                   v-for="item in optionss"
-                  :key="item.values"
-                  :label="item.labels"
-                  :value="item.values"
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item.value"
                 ></el-option>
               </el-select>
               <el-form-item>
@@ -273,17 +137,18 @@
               </el-form-item>
             </el-form>
           </div>
+          <!-- table表格布局 -->
           <el-table
-            :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+            :data="tableData3.slice((currentPage-1)*pagesize,currentPage*pagesize)"
             style="width: 100%;"
             class="tabP"
           >
-            <el-table-column prop="date" label="能力ID" width="180"></el-table-column>
+            <el-table-column prop="id" label="能力ID" width="180"></el-table-column>
             <el-table-column prop="name" label="能力名称" width="180"></el-table-column>
-            <el-table-column prop="name" label="组能力服务数量"></el-table-column>
-            <el-table-column prop="name" label="正常状态服务数量"></el-table-column>
-            <el-table-column prop="name" label="告警组件数量"></el-table-column>
-            <el-table-column prop="date" label="更新时间"></el-table-column>
+            <el-table-column prop="abilityTotalNum" label="能力服务数量"></el-table-column>
+            <el-table-column prop="normalAbilityNum" label="正常状态服务数量"></el-table-column>
+            <el-table-column prop="alarmAbilityNum" label="告警组件数量"></el-table-column>
+            <el-table-column prop="updateTime" label="更新时间"></el-table-column>
 
             <el-table-column label="操作">
               <template slot-scope="scope">
@@ -299,13 +164,75 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage1"
+          :current-page.sync="currentPage"
           :page-size="100"
           layout="total, prev, pager, next"
           :total="1000"
         ></el-pagination>
       </div>
+      
     </div>
+    <!-- 操作性情的弹窗结构 -->
+      <el-dialog
+        class="headers"
+        :title="title"
+        :visible.sync="dialogEditgsVisible"
+        width="50%"
+        center
+      >
+        <div style="width:100%;height:600px;">
+          <div class="information">
+            <div>
+              <p>服务器信息</p>
+              <p>
+                <span>主机名称: {{hostDetail.hostName}}</span>
+                <span>主机IP: {{hostDetail.hostIp}}</span>
+                <span>操作系统: {{hostDetail.operationSystem}}</span>
+              </p>
+              <p>
+                <span>CPU: {{hostDetail.cpuCore}}核</span>
+                <span style="margin-left:100px;">内存：{{hostDetail.cpuCore}}</span>
+              </p>
+            </div>
+            <div class="myCPU">
+              <div>
+                <p>CPU状态监控</p>
+                <p style="text-align:center;">CPU指标</p>
+                <ul class="list">
+                  <li>CPU主频·········{{hostDetail.cpuFrequency}} GHZ</li>
+                  <li>CPU个数·········{{hostDetail.cpuNum}} 个</li>
+                  <li>CPU内核·········{{hostDetail.cpuCore}} 个</li>
+                </ul>
+                <div class="el-progress-circle" style="height: 126px; width: 126px;">
+                  <div style='width:100px;height:100px;border-radius:50%;border:solid 1px #f00;'>{{hostDetail.cpuUtility}}%</div>
+                  <p style="width:200px;font-size:14px;text-align:center;">CPU使用率</p>
+                </div>
+              </div>
+              <div>
+                CPU使用状态
+                <div style='width:600px;height:200px;' ref='cpu'></div>      
+              </div>
+            </div>
+            <div class="myCPU">
+              <div>
+                <p>内存态监控</p>
+                <p style="text-align:center;">内存指标</p>
+                <ul class="list">
+                  <li>内存容量·········{{hostDetail.ramCapacity}}G</li>
+                </ul>
+                <div class="el-progress-circle" style="height: 126px; width: 126px;">
+                  <div style='width:100px;height:100px;border-radius:50%;border:solid 1px #f00;'>{{hostDetail.ramUtility}}%</div>
+                  <p style="width:200px;font-size:14px;text-align:center;">内存使用率</p>
+                </div>
+              </div>
+              <div>
+                内存使用状态
+                <div style='width:600px;height:200px;' ref='ram'></div>      
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-dialog>
   </div>
 </template>
 
@@ -320,6 +247,8 @@ export default {
       //进度条
       percentage: 20,
       percentage1: 35,
+      compStatus:'',
+      compName:"",
       customColor: "#409eff",
       customColors: [
         { color: "#f56c6c", percentage: 65 },
@@ -360,9 +289,12 @@ export default {
       value2: "",
       formInline: {
         user: "",
-        name: "",
-        region: ""
+        hostName: "",
+        region: "",
+        hostIp: ""
       },
+
+
       addForm: {
         name: "",
         sort: 99
@@ -377,52 +309,22 @@ export default {
       dialogEditgsVisible: false,
       dialogEditgsVisible1: false,
       options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
+       
+    
       ],
       value: "",
       optionss: [
         {
-          values: "选项1",
-          labels: "黄金糕"
+          name:"正常",
+          value:0
         },
         {
-          values: "选项2",
-          labels: "双皮奶"
+          name:"告警",
+          value:1
         },
-        {
-          values: "选项3",
-          labels: "蚵仔煎"
-        },
-        {
-          values: "选项4",
-          labels: "龙须面"
-        },
-        {
-          values: "选项5",
-          labels: "北京烤鸭"
-        }
       ],
       values: "",
-
+      hostDetail: {},
       rules: {
         name: [
           { required: true, message: "请输入名称" },
@@ -431,240 +333,144 @@ export default {
         sort: [{ type: "number", message: "11233552", trigger: "blur" }]
       },
       tableData: [
-        {
-          date: "2016-05-02",
-          name: "王2虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王3虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王4虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王5虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王6虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王7虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王8虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王10虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        },
-        {
-          date: "2019-05-03",
-          name: "王9虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
-      ]
+        // {
+        //   id: 1, //id
+        //   status: 0, //状态
+        //   hostName: "主机", //主机名称
+        //   hostIp: "192.168.1.6", //主机IP
+        //   operationSystem: "centOS", //操作系统
+        //   cpuFrequency: "2.5", //cpu利用率
+        //   //内存利用率
+        //   updateTime: "2019-10-20 21:35:29" //更新时间
+        // }
+      ],
+      tableData2: [
+        // {
+        //   alarmTotalComponents: 6, //告警组件数量
+        //   id: 1, //组件ID
+        //   name: "tomcat", //组件名称
+        //   normalTotalComponents: 0, //正常组件数量
+        //   totalComponents: 6, //组件数量
+        //   updateTime: "2019-10-20 21:41:43" //更新时间
+        // }
+      ],
+      tableData3: [
+        // {
+        //   abilityTotalNum: 1, //能力服务数量
+        //   alarmAbilityNum: 0, //告警状态服务数量
+        //   id: 5, //服务ID
+        //   name: "人脸识4", //服务名称
+        //   normalAbilityNum: 1, //正常状态服务数量
+        //   updateTime: "2019-10-20 21:58:20" //更新时间
+        // }
+      ],
+      cpuOptions: {
+        xAxis: [],
+        series: [],
+      },
+      ramOptions: {
+        xAxis: [],
+        series: [],
+      }
     };
   },
   methods: {
-    //调取获取主机信息列表接口
-    getmessage() {
-      this.$axios.post('/oms-basic/hardWareInfo!list.json',{
-      }).then(res => {
-        console.log(res,'res')
-        console.log(res.data,'res.data')
-        this.tableData = [].concat(res.data.list);
-        console.log(this.tableData,'this.tableData')
-      }).catch(error => {
-        console.log(error)
-      })
-    },
-
-    //------------------------------------
-    getEchartss() {
-      var dataAxis = [
-        "点",
-        "击",
-        "柱",
-        "子",
-        "或",
-        "者",
-        "两",
-        "指",
-        "在",
-        "触",
-        "屏",
-        "上",
-        "滑",
-        "动",
-        "能",
-        "够",
-        "自",
-        "动",
-        "缩",
-        "放"
-      ];
-      var data = [
-        220,
-        182,
-        191,
-        234,
-        290,
-        330,
-        310,
-        123,
-        442,
-        321,
-        90,
-        149,
-        210,
-        122,
-        133,
-        334,
-        198,
-        123,
-        125,
-        220
-      ];
-      var yMax = 500;
-      var dataShadow = [];
-
-      for (var i = 0; i < data.length; i++) {
-        dataShadow.push(yMax);
-      }
-      echarts.init(document.getElementById("mainl")).setOption({
-        title: {},
-        grid: {
-          x: 25,
-          y: 45,
-          x2: 5,
-          y2: 20,
-          borderWidth: 1
-        },
-
-        xAxis: {
-          data: dataAxis,
-          axisLabel: {
-            inside: true,
-            textStyle: {
-              color: "#fff"
-            }
-          },
-          axisTick: {
-            show: false
-          },
-          axisLine: {
-            show: false
-          },
-          z: 10
-        },
-        yAxis: {
-          axisLine: {
-            show: false
-          },
-          axisTick: {
-            show: false
-          },
-          axisLabel: {
-            textStyle: {
-              color: "#999"
-            }
-          }
-        },
-        dataZoom: [
-          {
-            type: "inside"
-          }
-        ],
-        series: [
-          {
-            // For shadow
-            type: "bar",
-            itemStyle: {
-              normal: { color: "rgba(0,0,0,0.05)" }
-            },
-            barGap: "-100%",
-            barCategoryGap: "40%",
-            data: dataShadow,
-            animation: false
-          },
-          {
-            type: "bar",
-            itemStyle: {
-              normal: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#83bff6" },
-                  { offset: 0.5, color: "#188df0" },
-                  { offset: 1, color: "#188df0" }
-                ])
-              },
-              emphasis: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#2378f7" },
-                  { offset: 0.7, color: "#2378f7" },
-                  { offset: 1, color: "#83bff6" }
-                ])
-              }
-            },
-            data: data
-          }
-        ]
-      });
-      var zoomSize = 6;
-      myChart.on("click", function(params) {
-        console.log(dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)]);
-        myChart.dispatchAction({
-          type: "dataZoom",
-          startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
-          endValue:
-            dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+    //调取获取主机信息列表(主机监控)接口
+    getMessage() {
+      this.$axios
+        .post("/oms-basic/hardWareInfo!list.json", {})
+        .then(res => {
+          this.tableData = [].concat(res.data.list);
+        })
+        .catch(error => {
+          console.log(error);
         });
-      });
     },
+     onSubmit2() {
+       let formData={};
+      if (this.compName) {
+        formData.name = this.compName;
+      }
+      if (this.compStatus!=undefined||this.compStatus!='') {
+        formData.status = this.compStatus;
+      }
+      this.$axios
+        .post(
+          "/oms-basic/softWareInfo!list.json",
+          this.$qs.stringify(formData)
+        )
+        .then(res => {
+          this.tableData2 = res.data.list;
+          console.log(res, "search");
+        })
+        .catch(err => {});
+      //
+    },
+    //调取(主机监控)搜索接口
+    onSubmit() {
+      if (!(this.formInline2.name || this.formInline.id)) {
+        return;
+      }
+      let formData = {};
+      if (this.formInline.name) {
+        formData.hostname = this.formInline.hostname;
+      }
+      if (this.formInline.id) {
+        formData.hostIp = this.formInline.id;
+      }
+      this.$axios
+        .post("/oms-basic/hardWareInfo!list.json", this.$qs.stringify(formData))
+        .then(res => {
+          this.tableData2 = res.data.list;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    //调取组件监控搜索接口
 
+      // if(!(this.value || this.values )) {return}
+      //   let formData2 = {};
+      //   if(this.value) {
+      //     this.tableData2.name = this.options.value;
+      //   }
+      //   if(this.values) {
+      //     this.tableData2.id = this.optionss.values;
+      //   }
+      getcomponentName() {
+        console.log('----999')
+        this.$axios.post('/oms-basic/softWareInfo!list.json').then(res => {
+          this.options = res.data.list;
+          console.log(this.options,'this.options')
+        }).catch(error => {
+          console.log(error)
+        })
+      },
+
+    //获取组件信息列表(组件监控)接口
+    getComponent() {
+      this.$axios
+        .post("/oms-basic/softWareInfo!list.json", {})
+        .then(res => {
+          // console.log(res);
+          this.tableData2 = [].concat(res.data.list);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    //调取能力监控table表格接口
+    getAbility() {
+      this.$axios
+        .post("/oms-basic/webappInfo!list.json", {})
+        .then(res => {
+          // console.log(res);
+          this.tableData3 = [].concat(res.data.list);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     //进度条
     customColorMethod(percentage) {
       if (percentage < 30) {
@@ -704,7 +510,7 @@ export default {
     // 初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function(size) {
       this.pagesize = size;
-      console.log(this.pagesize); //每页下拉显示数据
+      // console.log(this.pagesize); //每页下拉显示数据
     },
     handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
@@ -716,16 +522,15 @@ export default {
       this.dialogEditgsVisible1 = false;
     },
 
-    editgsForm(val) {},
     saveEditForm(aaa) {
       this.$refs[aaa].validate(valid => {
-        console.log(this.$refs[aaa]);
+        // console.log(this.$refs[aaa]);
         if (valid) {
           // this.$axios.put(`http://localhost:3000/admin/categories/${this.editForm.id}`,this.editForm).then( res =>{
           //   alert('更新成功');
           this.dialogEditgsVisible = false;
           this.init();
-          console.log(valid);
+          // console.log(valid);
           // })
         }
       });
@@ -739,21 +544,87 @@ export default {
         }
       );
     },
-    //
-    editgsForm(val) {
-      this.dialogEditgsVisible = true;
-      this.title = "主机监控详情";
-      this.editForm.id = val.id;
-      this.editForm.name = val.name;
-      this.editForm.sort = val.sort;
+    // 请求主机详情
+    queryHotDetail(obj){
+      this.$axios.post('/oms-basic/hardWareInfo!get.json',this.$qs.stringify(obj)).then(res=>{
+        if(res.data.code === '10000'){
+          this.hostDetail = res.data.hardwareInfo[0];
+          console.log("数据",res.data.hardwareInfo)
+          let xAxis = [],cpuY = [],ramY = [];
+          res.data.hardwareInfo.forEach((item,index)=>{
+            xAxis.push(item.createTime.split(' ')[1].substring(0,5));
+            cpuY.push(item.cpuUtility);
+            ramY.push(item.ramUtility);
+          })
+          console.log(xAxis,cpuY,ramY)
+          this.cpuOptions = {
+            xAxis,
+            series: cpuY
+          };
+          this.ramOptions = {
+            xAxis,
+            series: ramY
+          };
+          this.title = "主机监控详情";
+          this.dialogEditgsVisible = true;
+          this.$nextTick(()=>{
+            this.generatorChart(this.$refs.cpu,this.cpuOptions); // CPU曲线图
+            this.generatorChart(this.$refs.ram,this.ramOptions); // 内存曲线图
+          })
+        }
+      })
+    },
+    generatorChart(ele,{xAxis,series}){
+      let app = echarts.init(ele);
+      let option = {
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+          },
+        },
+        xAxis: {
+        type: 'category',
+        data: xAxis
+        // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [{
+            data: series,
+            name: '利用率',
+            // data: [10,2,1,5,6],
+            type: 'line',
+            smooth: true,
+            color: ['#3398DB'],
+            areaStyle: {
+                normal: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        // color: '#8ec6ad'
+                        color: '#3398DB'
+                    }, {
+                        offset: 1,
+                        color: '#ffe'
+                    }])
+                }
+            },
+        }]
+      };
+      app.setOption(option);
+    },
+    editgsForm(hostIp) {
+      this.queryHotDetail({hostIp});
+      
     }
-
   },
   mounted() {
-
-    // this.getEchartss();
-    this.getmessage();
-
+    this.getMessage(); //调取table表格数据接口
+    // this.getSearch();  //调取搜索接口
+    this.getComponent(); //获取组件信息列表table表格(组件监控)接口
+    this.getAbility(); //调取能力监控table表格接口
+    this.getcomponentName();
   }
 };
 </script>

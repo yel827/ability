@@ -159,8 +159,8 @@ export default {
       detailForm: [],
       options: [
         {
-          value: "选项1",
-          label: "INFO"
+          value: "选项1",  //value可以不写
+          label: "INFO" //值 
         },
         {
           value: "选项2",
@@ -228,8 +228,6 @@ export default {
         return;
       }
       var formData = {};
-      // this.$data
-
       if (this.formInline.level) {
         formData.level = this.formInline.level;
       }
